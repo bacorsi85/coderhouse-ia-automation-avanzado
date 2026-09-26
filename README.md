@@ -14,8 +14,8 @@ seguimiento humano.
 | # | Módulo | Qué suma | Carpeta |
 |---|---|---|---|
 | 1 | M1 · Agente base | Trigger → AI Agent (Tools Agent) + System Prompt + 1 Tool → Log de observabilidad | [`entregable-1/`](entregable-1/) |
-| 2 | M2 · Multi-agente | Manager → workers como sub-workflows | *pendiente* |
-| 3 | M3 · Memoria | Contexto por `Session_ID` | *pendiente* |
+| 2 | M2 · Multi-agente | Manager → workers como sub-workflows (contrato de datos, Wait for child, fallback) | [`entregable-2/`](entregable-2/) |
+| 3 | M3 · Memoria | Memoria híbrida por `Session_ID` (Google Sheets + corto plazo) y summarization > 5 mensajes | [`entregable-3/`](entregable-3/) |
 | 4 | M4 · Integraciones | CRM / Calendario / Workspace vía OAuth2 | *pendiente* |
 | 5 | M5 · RAG | Base documental / vector store | *pendiente* |
 | 6 | M6 · Voz | STT / TTS | *pendiente* |

@@ -1,0 +1,1271 @@
+{
+  "name": "manager_modulo2_acorsi_bruno",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "f1f81c9c-b92a-4495-8a20-01907e9e211f",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        352
+      ],
+      "webhookId": "e2d52023-fd27-47be-a3dd-4cd979e0b913"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "i1",
+              "name": "original_input",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            },
+            {
+              "id": "i2",
+              "name": "session_id",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "0af94a9c-93d6-4026-9159-5cbd64a95fd7",
+      "name": "Input de prueba",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Sos el Router de la mesa de ayuda de ProTable (SaaS de pedidos por menú QR para restaurantes).\n\nMensaje:\n{{ $json.original_input }}\n\nTu única tarea es clasificar. NO resuelvas el problema.\n\nIntent permitidos (taxonomía cerrada):\n- BILLING: cobros, pagos, facturas, suscripciones, MercadoPago.\n- TECH_SUPPORT: acceso, errores, funcionamiento técnico (menú QR, dashboard, KDS).\n- SALES: planes, contratación, interés comercial.\n- UNKNOWN: ambiguo, saludo sin pedido o fuera de alcance.\n\nRisk (evaluá lo que el usuario PIDE que se haga, no el tema):\n- LOW: consulta informativa, reporte de un problema o diagnóstico seguro. Ej: \"me cobraron dos veces\", \"no puedo entrar\", \"quiero info de planes\".\n- MEDIUM: pide modificar algo de su cuenta o una comunicación externa. Ej: \"cambiá mi plan\", \"actualizá mis datos de facturación\".\n- HIGH: exige una acción sensible: reembolso o movimiento de dinero, eliminación de datos o cuentas, cambio irreversible, o un pedido urgente de monto importante. Ej: \"reintegrame USD 8.000 ahora\", \"borrá mi cuenta\".\n\nSi el mensaje mezcla temas, elegí el intent del problema de mayor impacto para el negocio.\n\nConfidence: número entre 0 y 1 sobre la clasificación.\n\nRespondé SOLO JSON válido:\n{\n  \"intent\": \"BILLING\",\n  \"confidence\": 0.95,\n  \"risk\": \"LOW\"\n}"
+      },
+      "id": "f1fce9d2-e135-4648-af44-625d0009bc70",
+      "name": "Router IA (clasificador semántico)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        448,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "builtInTools": {},
+        "options": {
+          "temperature": 0
+        }
+      },
+      "id": "bc5acbb8-52c2-4ea6-baed-08bdbc37a04f",
+      "name": "Modelo Router (OpenAI)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        520,
+        584
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "7nT3QQUKRY4bT0ju",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const src = $('Input de prueba').first().json;\nconst raw = $json.text ?? $json.output ?? $json.response ?? '';\nlet d;\ntry {\n  d = JSON.parse(String(raw).replace(/^```json\\s*/i, '').replace(/```$/, '').trim());\n} catch (e) {\n  d = { intent: 'UNKNOWN', confidence: 0, risk: 'HIGH' };\n}\nconst allowed = ['BILLING', 'TECH_SUPPORT', 'SALES', 'UNKNOWN'];\nconst intent = allowed.includes(d.intent) ? d.intent : 'UNKNOWN';\nconst confidence = Math.max(0, Math.min(1, Number(d.confidence ?? 0)));\nconst risk = ['LOW', 'MEDIUM', 'HIGH'].includes(d.risk) ? d.risk : 'HIGH';\nreturn [{ json: { original_input: src.original_input, session_id: src.session_id, intent, confidence, risk } }];"
+      },
+      "id": "69d5951e-eb5a-4714-9ce3-3be507e621da",
+      "name": "Normalizar contrato Router",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "h1",
+              "name": "status",
+              "value": "needs_human",
+              "type": "string"
+            },
+            {
+              "id": "h2",
+              "name": "worker",
+              "value": "HITL",
+              "type": "string"
+            },
+            {
+              "id": "h3",
+              "name": "respuesta",
+              "value": "Tu solicitud necesita revisión de una persona del equipo (riesgo alto, baja confianza o intención no reconocida). Te vamos a contactar.",
+              "type": "string"
+            },
+            {
+              "id": "h4",
+              "name": "requires_human",
+              "value": true,
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c59585cf-72e2-4849-bed8-dd3cce094c7a",
+      "name": "Escalar a supervisor humano",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1472,
+        112
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "BILLING",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "BILLING"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "TECH_SUPPORT",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "TECH_SUPPORT"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.intent }}",
+                    "rightValue": "SALES",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "SALES"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "UNKNOWN → humano"
+        }
+      },
+      "id": "61a1573f-a3cb-4b9b-96df-e75815fe92a3",
+      "name": "Switch por intención",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1248,
+        416
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "setB1",
+              "name": "original_input",
+              "value": "={{ $json.original_input }}",
+              "type": "string"
+            },
+            {
+              "id": "setB2",
+              "name": "intent",
+              "value": "={{ $json.intent }}",
+              "type": "string"
+            },
+            {
+              "id": "setB3",
+              "name": "confidence",
+              "value": "={{ $json.confidence }}",
+              "type": "number"
+            },
+            {
+              "id": "setB4",
+              "name": "risk",
+              "value": "={{ $json.risk }}",
+              "type": "string"
+            },
+            {
+              "id": "setB5",
+              "name": "session_id",
+              "value": "={{ $json.session_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "9a73b7bd-15cc-4adb-867d-44ec15891b23",
+      "name": "Set contrato Billing",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1472,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "Au66xXReqvTNDhjb",
+          "cachedResultName": "worker1_billing_acorsi_bruno",
+          "cachedResultUrl": "/workflow/Au66xXReqvTNDhjb"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "original_input": "={{ $json.original_input }}",
+            "intent": "={{ $json.intent }}",
+            "confidence": "={{ $json.confidence }}",
+            "risk": "={{ $json.risk }}",
+            "session_id": "={{ $json.session_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "original_input",
+              "displayName": "original_input",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            },
+            {
+              "id": "risk",
+              "displayName": "risk",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "645a0e93-81df-42e2-8f61-9c0849637f58",
+      "name": "Delegar a Worker Billing",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1696,
+        352
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "setT1",
+              "name": "original_input",
+              "value": "={{ $json.original_input }}",
+              "type": "string"
+            },
+            {
+              "id": "setT2",
+              "name": "intent",
+              "value": "={{ $json.intent }}",
+              "type": "string"
+            },
+            {
+              "id": "setT3",
+              "name": "confidence",
+              "value": "={{ $json.confidence }}",
+              "type": "number"
+            },
+            {
+              "id": "setT4",
+              "name": "risk",
+              "value": "={{ $json.risk }}",
+              "type": "string"
+            },
+            {
+              "id": "setT5",
+              "name": "session_id",
+              "value": "={{ $json.session_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6763ab03-45b5-4bac-b4ef-a678e27acec5",
+      "name": "Set contrato Tech Support",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1472,
+        640
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "t2OQvhTYySLOVNh1",
+          "cachedResultName": "worker2_tech_support_acorsi_bruno",
+          "cachedResultUrl": "/workflow/t2OQvhTYySLOVNh1"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "original_input": "={{ $json.original_input }}",
+            "intent": "={{ $json.intent }}",
+            "confidence": "={{ $json.confidence }}",
+            "risk": "={{ $json.risk }}",
+            "session_id": "={{ $json.session_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "original_input",
+              "displayName": "original_input",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            },
+            {
+              "id": "risk",
+              "displayName": "risk",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "96936a3f-2afa-4c97-8cfe-c78a73ebd8b4",
+      "name": "Delegar a Worker Tech Support",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1696,
+        640
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "setS1",
+              "name": "original_input",
+              "value": "={{ $json.original_input }}",
+              "type": "string"
+            },
+            {
+              "id": "setS2",
+              "name": "intent",
+              "value": "={{ $json.intent }}",
+              "type": "string"
+            },
+            {
+              "id": "setS3",
+              "name": "confidence",
+              "value": "={{ $json.confidence }}",
+              "type": "number"
+            },
+            {
+              "id": "setS4",
+              "name": "risk",
+              "value": "={{ $json.risk }}",
+              "type": "string"
+            },
+            {
+              "id": "setS5",
+              "name": "session_id",
+              "value": "={{ $json.session_id }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1561e7fc-f0de-4773-b52e-5cd1fa944cb0",
+      "name": "Set contrato Sales",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1472,
+        832
+      ]
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "d2wk6WBxOxeHkrcx",
+          "cachedResultName": "worker3_sales_acorsi_bruno",
+          "cachedResultUrl": "/workflow/d2wk6WBxOxeHkrcx"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "original_input": "={{ $json.original_input }}",
+            "intent": "={{ $json.intent }}",
+            "confidence": "={{ $json.confidence }}",
+            "risk": "={{ $json.risk }}",
+            "session_id": "={{ $json.session_id }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "original_input",
+              "displayName": "original_input",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "number"
+            },
+            {
+              "id": "risk",
+              "displayName": "risk",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "mode": "each",
+        "options": {
+          "waitForSubWorkflow": true
+        }
+      },
+      "id": "c1893cd8-38cd-41d6-b960-343138452597",
+      "name": "Delegar a Worker Sales",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1696,
+        832
+      ],
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 2000,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const src = $('Normalizar contrato Router').first().json;\nconst rutas = [\n  { set: 'Set contrato Billing', worker: 'worker1_billing_acorsi_bruno' },\n  { set: 'Set contrato Tech Support', worker: 'worker2_tech_support_acorsi_bruno' },\n  { set: 'Set contrato Sales', worker: 'worker3_sales_acorsi_bruno' }\n];\nconst ruta = rutas.find(r => $(r.set).isExecuted);\nconst enviado = ruta ? $(ruta.set).first().json : null;\nconst r = $json;\nreturn [{ json: {\n  timestamp: new Date().toISOString(),\n  execution_id: $execution.id,\n  session_id: src.session_id,\n  original_input: src.original_input,\n  intent: src.intent,\n  confidence: src.confidence,\n  risk: src.risk,\n  worker: ruta ? ruta.worker : 'HITL (supervisor humano)',\n  parametros_enviados: enviado ? JSON.stringify(enviado) : 'N/A: no se delegó a ningún worker',\n  status: r.status ?? 'success',\n  respuesta: r.respuesta ?? '',\n  requires_human: Boolean(r.requires_human),\n  error: r.error ?? null\n} }];"
+      },
+      "id": "ccd4fb56-ad1e-4603-9335-6b3c79869ada",
+      "name": "Consolidar resultado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2144,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "status",
+              "value": "error",
+              "type": "string"
+            },
+            {
+              "id": "f2",
+              "name": "worker",
+              "value": "={{ $json.intent ?? $('Normalizar contrato Router').first().json.intent }}",
+              "type": "string"
+            },
+            {
+              "id": "f3",
+              "name": "respuesta",
+              "value": "El especialista no respondió a tiempo. Derivamos tu caso a una persona del equipo.",
+              "type": "string"
+            },
+            {
+              "id": "f4",
+              "name": "requires_human",
+              "value": true,
+              "type": "boolean"
+            },
+            {
+              "id": "f5",
+              "name": "error",
+              "value": "={{ $json.error?.message ?? $json.error ?? \"Worker caído o timeout\" }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "b53cd2da-dc55-4f0d-bb08-7bda2fed8fcf",
+      "name": "Fallback: worker sin respuesta",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1920,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C0C0XR49J93",
+          "mode": "list",
+          "cachedResultName": "general-personal"
+        },
+        "text": "=🧭 *Manager multi-agente: log de trazabilidad*\n\n*Mensaje:* {{ $('Consolidar resultado').item.json.original_input }}\n*Router:* intent `{{ $('Consolidar resultado').item.json.intent }}` · confianza {{ $('Consolidar resultado').item.json.confidence }} · riesgo {{ $('Consolidar resultado').item.json.risk }}\n*Worker invocado:* {{ $('Consolidar resultado').item.json.worker }}\n*Parámetros enviados:* `{{ $('Consolidar resultado').item.json.parametros_enviados }}`\n*Estado:* {{ $('Consolidar resultado').item.json.status }} · requiere humano: {{ $('Consolidar resultado').item.json.requires_human }}\n*Respuesta devuelta:* {{ $('Consolidar resultado').item.json.respuesta }}\n{{ $('Consolidar resultado').item.json.error ? '*Error:* ' + $('Consolidar resultado').item.json.error : '' }}\n_Ejecución {{ $('Consolidar resultado').item.json.execution_id }}_",
+        "otherOptions": {}
+      },
+      "id": "12d8d92a-e16c-457f-8358-5e4fcb0d67f3",
+      "name": "Log de trazabilidad (Slack)",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        2592,
+        448
+      ],
+      "webhookId": "76425139-f4ed-4d14-921b-22e944ac7c22",
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "256Aq6c6oCNCkaIo",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "r1",
+              "name": "output",
+              "value": "={{ $('Consolidar resultado').item.json.respuesta }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3f87f104-8949-4cca-a75c-e59d70c6005e",
+      "name": "Respuesta al usuario",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2816,
+        448
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 1. Manager: clasificación\nRouter IA con taxonomía cerrada (BILLING, TECH_SUPPORT, SALES, UNKNOWN) + riesgo + confianza. Si el riesgo es HIGH o la confianza < 0.5, escala a humano sin delegar.",
+        "height": 176,
+        "width": 464,
+        "color": 5
+      },
+      "id": "7f6287f8-8120-42d3-a888-4674455d7fb1",
+      "name": "Sticky Note e31f58a3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        304,
+        848
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 2. Handoff (contrato de datos)\nCada Set limpia el payload y pasa solo 5 campos: original_input, intent, confidence, risk, session_id.\nExecute Workflow: Wait for child to finish ON, 2 intentos, salida de error hacia el fallback. Timeout de 60 s en cada worker.",
+        "height": 176,
+        "width": 688,
+        "color": 4
+      },
+      "id": "9b39581e-b425-4a43-ba80-1c10d6e8852a",
+      "name": "Sticky Note d0f6f92d",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        304,
+        1088
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 3. Trazabilidad\nConsolidar arma el registro de auditoría: worker invocado, parámetros enviados y respuesta devuelta. Se publica en Slack (#general-personal) en cada ejecución.",
+        "height": 240,
+        "width": 688,
+        "color": 6
+      },
+      "id": "bcd54c8e-c164-461f-aa55-8170e98cb0c8",
+      "name": "Sticky Note 29709c73",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        304,
+        1280
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.risk }}",
+              "rightValue": "HIGH",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "id": "73fe0798-b70c-4890-801c-1b510070acca"
+            },
+            {
+              "leftValue": "={{ $json.confidence }}",
+              "rightValue": 0.5,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              },
+              "id": "f29ea955-1b31-4251-8351-1fea32f4a00b"
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "id": "33d959b3-89f2-4053-81fc-ed45b814ccb9",
+      "name": "Requiere HITL?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1024,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1QF_8KIfcQOyvW0yFvJFyY7P1tGKGKRDG9BjXgy9AN28",
+          "mode": "list",
+          "cachedResultName": "Logs_Multiagente_M2",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QF_8KIfcQOyvW0yFvJFyY7P1tGKGKRDG9BjXgy9AN28/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 2109575733,
+          "mode": "list",
+          "cachedResultName": "Untitled",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1QF_8KIfcQOyvW0yFvJFyY7P1tGKGKRDG9BjXgy9AN28/edit#gid=2109575733"
+        },
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "value": {},
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "original_input",
+              "displayName": "original_input",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "intent",
+              "displayName": "intent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "confidence",
+              "displayName": "confidence",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "risk",
+              "displayName": "risk",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "worker",
+              "displayName": "worker",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "parametros_enviados",
+              "displayName": "parametros_enviados",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "status",
+              "displayName": "status",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "respuesta",
+              "displayName": "respuesta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "requires_human",
+              "displayName": "requires_human",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "execution_id",
+              "displayName": "execution_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "error",
+              "displayName": "error",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2368,
+        448
+      ],
+      "id": "d0323852-6b55-4c16-a1c3-a50137c3d109",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "UbeMSD0hTBW90Leo",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Input de prueba",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input de prueba": {
+      "main": [
+        [
+          {
+            "node": "Router IA (clasificador semántico)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Router IA (clasificador semántico)": {
+      "main": [
+        [
+          {
+            "node": "Normalizar contrato Router",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modelo Router (OpenAI)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Router IA (clasificador semántico)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar contrato Router": {
+      "main": [
+        [
+          {
+            "node": "Requiere HITL?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Escalar a supervisor humano": {
+      "main": [
+        [
+          {
+            "node": "Consolidar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch por intención": {
+      "main": [
+        [
+          {
+            "node": "Set contrato Billing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set contrato Tech Support",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set contrato Sales",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Escalar a supervisor humano",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set contrato Billing": {
+      "main": [
+        [
+          {
+            "node": "Delegar a Worker Billing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delegar a Worker Billing": {
+      "main": [
+        [
+          {
+            "node": "Consolidar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fallback: worker sin respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set contrato Tech Support": {
+      "main": [
+        [
+          {
+            "node": "Delegar a Worker Tech Support",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delegar a Worker Tech Support": {
+      "main": [
+        [
+          {
+            "node": "Consolidar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fallback: worker sin respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set contrato Sales": {
+      "main": [
+        [
+          {
+            "node": "Delegar a Worker Sales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delegar a Worker Sales": {
+      "main": [
+        [
+          {
+            "node": "Consolidar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fallback: worker sin respuesta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fallback: worker sin respuesta": {
+      "main": [
+        [
+          {
+            "node": "Consolidar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log de trazabilidad (Slack)": {
+      "main": [
+        [
+          {
+            "node": "Respuesta al usuario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidar resultado": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Requiere HITL?": {
+      "main": [
+        [
+          {
+            "node": "Escalar a supervisor humano",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch por intención",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Log de trazabilidad (Slack)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "tags": [],
+  "active": false,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "id": "A8jlHXBHAIqmGFhG"
+}
