@@ -61,6 +61,12 @@ Todas las consultas son del **11-10-2026**, salvo los precios de Anthropic, revi
 | M7 | Tokens de entrada de la primera llamada de cada worker, variante B | Sales 1.461 · Billing 1.523 · Tech Support 1.977 y 1.986; 2 llamadas al worker en C1–C4, 0 en C5 (1,6 por ejecución) | `tokenUsage` de cada nodo de modelo, ejecuciones 403, 412, 421 y 430 (12-10-2026) |
 | M8 | Registro del Juez | 12 filas en `qa_juez_m8`: 10 ACEPTADO, 1 CORREGIR (`TONO_O_FORMATO`), 1 RECHAZADO (`PROMESA_NO_AUTORIZADA`). La fila de la ejecución 403 tiene `timestamp` 2026-10-12T02:51:46.960Z | Data Table `qa_juez_m8` y `m8/capturas/d1-qa-juez-traceid.jpg`, `d2-qa-juez-veredictos.jpg` |
 
+## Sueldos y tipo de cambio (sección 1.2b, consultados el 12-10-2026)
+
+- Sueldo de soporte en Argentina: Computrabajo, "¿Cuánto gana un Analista de soporte?" (ar.computrabajo.com/salarios/analista-de-soporte) y "Técnico/a de soporte" (ar.computrabajo.com/salarios/tecnicoa-de-soporte); CuántoGano, rubro Soporte Técnico (cuantogano.com/sueldos/soporte-tecnico.html), sueldos informados en 2026 entre $1.100.000 y $2.200.000. El rango semi senior de $1.000.000 a $1.600.000 y el valor de $1.300.000 son una estimación propia a partir de esas fuentes (*supuesto*). Glassdoor se descartó por desactualizado.
+- Cargas sociales, aguinaldo y vacaciones: factor 1,45 sobre el bruto (*supuesto*, no consultado).
+- Tipo de cambio: Banco de la Nación Argentina, cotización billetes del 9/10/2026 (bna.com.ar/Personas): dólar compra $1.485 / venta $1.535; euro compra $1.655 / venta $1.765. Se usa la venta.
+
 ## Lo que no se pudo verificar
 
 - Precio mensual de n8n Cloud en la página oficial (solo aparece el anual). Se usó una fuente secundaria, marcada como tal.
