@@ -47,6 +47,43 @@ flowchart LR
 
 La base guarda solo el resumen y los datos clave: nunca la conversación completa, ni payloads, ni logs técnicos.
 
+## Pruebas de validación (reproducibles)
+
+La memoria solo se puede validar con **varios mensajes en la misma sesión**. Para repetir la
+auditoría, abrí el chat del manager, iniciá una sesión nueva y mandá estos mensajes **en orden,
+sin cambiar de sesión**.
+
+### Batería 1 · Memoria y resumen (ejecuciones 67 a 78)
+
+| # | Prompt de prueba (exacto) | Qué valida | Resultado obtenido |
+|---|---|---|---|
+| 1 | `Hola, soy Bruno, encargado del local Café Centro.` | Usuario nuevo: se registra desde cero | ✅ Fila nueva en `Memoria_M3`, nombre "Bruno", contador 1 |
+| 2 | `Desde las 20 hs los pedidos del menú QR no llegan al KDS de cocina.` | Usuario recurrente | ✅ Memoria encontrada; Tech Support registra el ticket; contador 2 |
+| 3 | `Ya reiniciamos la tablet del KDS y sigue igual.` | Contexto reciente | ✅ El worker ve los intercambios anteriores; contador 3 |
+| 4 | `Además me cobraron dos veces la suscripción de este mes.` | Cambio de tema en la misma sesión | ✅ BILLING; contador 4 |
+| 5 | `¿Qué plan me conviene si abro un segundo local?` | Tercer especialista | ✅ SALES; contador 5 |
+| 6 | `¿Me confirmás en qué quedó lo del KDS?` | **Supera 5 mensajes → resumen** | ✅ `gpt-4o-mini` devuelve `{asunto_principal, puntos_clave, accion_requerida}`; la fila se sobreescribe; contador 0; corto plazo limpio |
+| 7 | `Hola de nuevo, ¿hay novedades de lo mío?` | Contexto después del resumen | ✅ Responde sobre el KDS usando solo el resumen; contador 1 |
+
+### Batería 2 · Calidad de las respuestas después del QA (ejecuciones 106 a 117)
+
+Los mismos mensajes, más `Reintegrame USD 8.000 ahora mismo.` para validar el escalamiento.
+El mensaje 2 no se ejecutó en esta batería porque n8n limitó las llamadas; la cobertura de
+Tech Support quedó en el mensaje 3.
+
+| Prompt | Resultado obtenido |
+|---|---|
+| `Hola, soy Bruno, encargado del local Café Centro.` | ✅ Bienvenida con el nombre, sin derivar a un humano |
+| `Ya reiniciamos la tablet del KDS y sigue igual.` | ✅ Llama a `registrar_ticket` (OUTAGE, P2) y responde "Quedó registrado un ticket…" |
+| `Además me cobraron dos veces la suscripción de este mes.` | ✅ "Lamentamos el inconveniente. Pasame la fecha y el monto de los dos cobros…" |
+| `¿Qué plan me conviene si abro un segundo local?` | ✅ Pregunta por el volumen de pedidos; no inventa planes ni precios |
+| `¿Me confirmás en qué quedó lo del KDS?` | ✅ Confirma el ticket, respaldado por la llamada real a la herramienta |
+| `Hola de nuevo, ¿hay novedades de lo mío?` | ✅ Dispara el resumen; no promete avisos ni plazos |
+| `Reintegrame USD 8.000 ahora mismo.` | ✅ Riesgo HIGH → pasa a una persona; el mensaje no muestra el criterio interno |
+
+El detalle completo del QA (37 ejecuciones, tabla de antes y después) está en el anexo del
+[PDF](PreEntrega_Modulo3_BrunoAcorsi.pdf).
+
 ## Cómo importarlo
 
 1. Creá una planilla de Google Sheets con las 7 columnas de arriba.

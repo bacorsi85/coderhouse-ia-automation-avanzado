@@ -15,7 +15,7 @@ Slack con la consulta, la respuesta y las herramientas que usó el agente.
 flowchart LR
     T["💬 When chat message received<br/>(Chat Trigger)"] --> A["🧠 AI Agent<br/>Tools Agent · máx. 8 iteraciones"]
     M["OpenAI Chat Model<br/>gpt-4o"] -. modelo .-> A
-    R["Simple Memory"] -. memoria .-> A
+    R["Simple Memory<br/>(adición adelantada, ver nota)"] -. memoria .-> A
     S["registrar_ticket<br/>(Google Sheets Tool)"] -. herramienta .-> A
     A --> L["📣 Log de observabilidad<br/>(Slack)"]
 ```
@@ -34,20 +34,40 @@ flowchart LR
 | **Sin bloques de decisión rígidos antes del agente** | El flujo es Trigger → Agente directo. La decisión de usar la herramienta la toma el modelo. |
 | **Observabilidad** | Nodo final de Slack que publica la consulta, la respuesta y el **execution log**: cada herramienta invocada con su input y su resultado (`returnIntermediateSteps` activado). |
 
-## Validación (prueba manual)
+## Nota: el nodo Simple Memory es una adición hacia adelante
 
-Ejecución manual del 2026-09-26, con el mensaje:
+El workflow incluye un nodo **Simple Memory** conectado al puerto *Memory* del agente.
+**No es un error de importación ni un requisito de este checkpoint:** la memoria es
+tema formal del **Módulo 3** del proyecto integrador. Lo sumé por adelantado porque el
+agente es conversacional y, sin memoria, pierde el hilo entre un mensaje y el
+siguiente (por ejemplo, si el usuario da su nombre y el local en un mensaje y el
+problema en otro).
 
-> Hola, soy Bruno Acorsi, encargado del local "Cafe Prueba Checkpoint 1". Desde hace
-> una hora el cobro con MercadoPago desde el menú QR queda en "procesando" y no se
-> acredita ningún pago, en todas las mesas. Ayer funcionaba bien. Necesito que quede
-> registrado para que lo revise el equipo.
+- **Qué hace acá:** guarda los últimos intercambios de la conversación en la memoria
+  interna de n8n, indexados por la sesión del chat (memoria de corto plazo).
+- **Qué no hace:** no persiste nada fuera de n8n, no escribe en ninguna base y se
+  pierde si la instancia se reinicia.
+- **Cómo evoluciona:** en el [Entregable 3](../entregable-3/) se formaliza como memoria
+  híbrida: corto plazo en n8n y largo plazo por `Session_ID` en Google Sheets, con
+  resumen automático.
+- **Si se quiere evaluar el M1 "puro":** se puede desconectar este nodo sin afectar el
+  resto del flujo; el agente sigue funcionando, solo que sin recordar mensajes previos.
 
-Resultado: **todos los nodos en verde (8,5 s)**.
+## Pruebas de validación (reproducibles)
 
-1. El agente clasificó el caso como `BILLING`, prioridad `P2 - HIGH`.
-2. Decidió por su cuenta invocar `registrar_ticket`, y la fila se agregó en la planilla.
-3. El log de observabilidad llegó a Slack con el detalle de la herramienta ejecutada.
+Cada corrida se ejecutó manualmente desde el chat del workflow. Para repetir la
+auditoría, pegá el **mensaje exacto** de la columna "Prompt de prueba" en el chat y
+compará con el resultado esperado.
+
+| # | Ejecución | Prompt de prueba (exacto) | Qué valida | Resultado esperado | Resultado obtenido |
+|---|---|---|---|---|---|
+| 1 | 23 · 2026-09-26 | `Hola, soy Bruno Acorsi, encargado del local "Cafe Prueba Checkpoint 1" (esto es una PRUEBA del checkpoint). Desde las 20:00 de hoy los pedidos que hacen los clientes desde el menu QR no aparecen en el KDS de cocina, en ninguna mesa. Antes funcionaba bien. Ya reiniciamos la tablet del KDS y sigue igual. Estamos tomando pedidos a mano. Necesito que quede registrado para que lo vea el equipo tecnico.` | Falla operativa con los datos completos: el agente tiene que decidir solo usar la herramienta | `BUG`, prioridad P2, acción `ESCALATE`, llamada a `registrar_ticket`, log en Slack | ⚠️ **Parcial.** El agente clasificó bien (`BUG`, `P2 - HIGH`, `ESCALATE`) y registró el ticket, pero el nodo de Slack falló por un error de sintaxis en la expresión del log. **Corregido** antes de la corrida 2 |
+| 2 | 24 · 2026-09-26 | `Hola, soy Bruno Acorsi, encargado del local "Cafe Prueba Checkpoint 1" (PRUEBA 2 del checkpoint). Desde hace una hora el cobro con MercadoPago desde el menu QR queda en "procesando" y no se acredita ningun pago, en todas las mesas. Ayer funcionaba bien. Necesito que quede registrado para que lo revise el equipo.` | Mismo caso, con el log corregido: recorrido completo en verde | `BILLING`, P2, llamada a `registrar_ticket`, log en Slack con el execution log | ✅ **Todo en verde (8,5 s).** `BILLING` · `P2 - HIGH`; `registrar_ticket` con Nombre "Bruno Acorsi", Empresa "Cafe Prueba Checkpoint 1", Categoría `BILLING`; Slack respondió `ok: true` |
+| 3 | 124 · 2026-09-29 | `Hola, soy Bruno, del local Café Centro. ¿Cómo hago para cambiar el logo que aparece en el menú QR de mi local?` | Caso contrario: una consulta de uso **no** tiene que generar un ticket | `HOW_TO`, P4, acción `RESOLVE`, **sin** llamar a la herramienta | ✅ **Todo en verde (4,7 s).** `HOW_TO` · `P4` · `RESOLVE`; herramientas usadas: **ninguna**; respondió con los pasos y el log llegó a Slack |
+
+Las corridas 2 y 3 muestran la bifurcación probabilística que pide la consigna: con el
+mismo agente y la misma herramienta, el modelo decide usarla ante una falla operativa
+y no usarla ante una consulta de uso.
 
 ## Cómo probarlo
 
@@ -56,10 +76,9 @@ Resultado: **todos los nodos en verde (8,5 s)**.
    Sheets OAuth2, con una planilla que tenga la hoja `Tickets` y las columnas
    `Nombre/contacto`, `Empresa`, `Categoría`, `Prioridad`, `Resumen`) y **Log de
    observabilidad** (Slack, eligiendo tu canal).
-3. Abrí el chat del workflow y mandá un mensaje con contacto, local y problema.
-   - Una consulta de uso ("¿cómo cambio el logo del menú?") debería responderse sin
-     ticket.
-   - Una falla operativa con los datos completos debería disparar `registrar_ticket`.
+3. Abrí el chat del workflow y repetí los prompts de la tabla de pruebas de arriba.
+   - La consulta de uso (prueba 3) se responde sin ticket.
+   - La falla operativa con los datos completos (pruebas 1 y 2) dispara `registrar_ticket`.
 
 ## Próximo paso (M2)
 
