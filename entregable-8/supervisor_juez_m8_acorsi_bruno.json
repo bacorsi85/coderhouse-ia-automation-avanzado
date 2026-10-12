@@ -972,7 +972,7 @@
           "mode": "id",
           "value": "C0C8EN5A0JE"
         },
-        "message": "={{ '✏️ Pegá la respuesta corregida para el cliente (traceId ' + $('Preparar alerta HITL').last().json.trace_id + ').' }}",
+        "message": "={{ '✏️ Tocá *Respond*, pegá en el formulario la respuesta corregida para el cliente y enviala (traceId ' + $('Preparar alerta HITL').last().json.trace_id + '). Cuando termine te confirmo acá qué salió.' }}",
         "responseType": "freeText",
         "options": {
           "limitWaitTime": {
@@ -1185,7 +1185,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        3920,
+        4400,
         300
       ],
       "parameters": {
@@ -1208,6 +1208,73 @@
         "width": 1200,
         "height": 200,
         "color": 5
+      }
+    },
+    {
+      "id": "b8371480-bc6a-4d8d-b502-103875178e74",
+      "name": "¿Decidió un humano?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3920,
+        300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "hh1",
+              "leftValue": "={{ ['APROBADO_HUMANO','EDITADO_HUMANO','SIN_RESPUESTA'].includes($('Contrato de salida').last().json.decision_humana) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "6f502474-baf3-43e4-a96c-b837de9b5841",
+      "name": "Slack · Confirmar cierre",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        4160,
+        160
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "post",
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "C0C8EN5A0JE"
+        },
+        "text": "={{ (() => { const c = $('Contrato de salida').last().json; const d = c.decision_humana; if (d === 'SIN_RESPUESTA') return '⏱️ *Caso cerrado sin respuesta* · traceId ' + c.trace_id + '\\nNadie decidió a tiempo: no sale nada al cliente.'; return '✅ *Caso cerrado* · traceId ' + c.trace_id + ' · ' + (d === 'EDITADO_HUMANO' ? 'editado por una persona' : 'aprobado por una persona') + '\\n*Respuesta que sale al cliente:* ' + c.respuesta_final; })() }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "onError": "continueRegularOutput",
+      "webhookId": "5138a267-50a6-458e-9471-a04257a8b865",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "256Aq6c6oCNCkaIo",
+          "name": "Slack account"
+        }
       }
     }
   ],
@@ -1522,6 +1589,35 @@
       ]
     },
     "Registrar decisión (QA_Juez)": {
+      "main": [
+        [
+          {
+            "node": "¿Decidió un humano?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Decidió un humano?": {
+      "main": [
+        [
+          {
+            "node": "Slack · Confirmar cierre",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Devolver al principal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack · Confirmar cierre": {
       "main": [
         [
           {

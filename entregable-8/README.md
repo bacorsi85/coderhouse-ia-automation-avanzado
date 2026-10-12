@@ -40,7 +40,7 @@ El chat acepta un prefijo de banco de pruebas: `#A C1 | consulta` corre la arqui
 |---|---|---|---|
 | ACEPTADO | 403 | `#B C1 NORMAL \| che, cuánto sale el plan pro y qué trae? me cobran comisión por cada venta?` | 5/5 · ACEPTADO: "$50.000 por mes … no se cobra comisión" |
 | CORREGIR → ACEPTADO | 441 | `#B DEMO CORREGIR \| un cliente pagó con mercado pago y el pedido sigue en En Caja, qué hago?` | Intento 0 en tuteo → la regla de tono lo pasa a CORREGIR → intento 1 con voseo → 5/5 · ACEPTADO |
-| RECHAZADO → Slack | 452 | `#B DEMO RECHAZAR \| me cobraron dos veces la suscripción de este mes, qué hago?` | Promesa de reembolso → 2/5 · RECHAZADO · PROMESA_NO_AUTORIZADA → Aprobar / Editar en `#operaciones` |
+| RECHAZADO → Slack | 547 | `#B DEMO RECHAZAR \| me cobraron dos veces la suscripción de este mes, qué hago?` | Promesa de reembolso → 2/5 · RECHAZADO · PROMESA_NO_AUTORIZADA → Aprobar / Editar en `#operaciones` → una persona tocó **Editar** y pegó la versión corregida → `EDITADO_HUMANO`, sale ese texto y Slack confirma "✅ Caso cerrado" |
 
 Las 10 corridas del A/B (C1–C5 × A y B, ejecuciones 398–436) están en la matriz del PDF.
 **Resultado:** B resolvió 5/5 y A 3/5 (2 fallas técnicas de Groq: `tool call validation failed`).
