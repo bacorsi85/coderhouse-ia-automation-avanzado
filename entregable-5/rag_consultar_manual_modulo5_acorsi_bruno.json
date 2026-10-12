@@ -38,7 +38,7 @@
         "nodeCredentialType": "openAiApi",
         "sendBody": true,
         "specifyBody": "json",
-        "jsonBody": "={{ JSON.stringify({ model: \"text-embedding-3-small\", input: $json.consulta }) }}",
+        "jsonBody": "={{ JSON.stringify({ model: \"text-embedding-3-small\", input: $json.consulta_expandida }) }}",
         "options": {}
       },
       "credentials": {
@@ -81,22 +81,26 @@
       "parameters": {
         "mode": "runOnceForAllItems",
         "language": "javaScript",
-        "jsCode": "// Búsqueda híbrida sobre los 91 fragmentos del manual:\n//   score = PESO_VECTOR × similitud coseno (embeddings) + (1 − PESO_VECTOR) × coincidencia léxica (palabras de la consulta presentes en el fragmento)\n// La parte léxica rescata consultas cortas con el término exacto del manual (\"comisión sobre las ventas\").\n// Top-K y Minimum Score son parámetros de gobernanza: los fija este sub-workflow, no el agente.\nconst TOP_K = 4;\nconst MIN_SCORE = 0.4;\nconst PESO_VECTOR = 0.8;\nconst consulta = $('Entrada: consulta').first().json.consulta;\nconst q = $('Embedding de la consulta').first().json.data[0].embedding;\nconst STOP = new Set('a al algo como con cual cuando de del desde donde el ella en entre es esa ese esta este hay la las le les lo los mas me mi mis muy no nos o para pero por que se si sin sobre su sus te tiene tienen un una uno unos y ya yo qué cómo cuál cuándo dónde puedo puede hace hacer tengo'.split(' '));\nconst norm = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');\nconst raices = (s) => [...new Set(norm(s).split(/[^a-z0-9ñ]+/).filter((w) => w.length > 2 && !STOP.has(w)).map((w) => w.slice(0, 5)))];\nconst rq = raices(consulta);\nconst norma = (v) => Math.sqrt(v.reduce((s, x) => s + x * x, 0));\nconst nq = norma(q);\nconst todos = $input.all().map((it) => {\n  const r = it.json;\n  const e = JSON.parse(r.embedding);\n  let dot = 0; for (let i = 0; i < e.length; i++) dot += e[i] * q[i];\n  const cos = dot / (norma(e) * nq);\n  const rc = new Set(raices(r.contenido));\n  const lex = rq.length ? rq.filter((w) => rc.has(w)).length / rq.length : 0;\n  const score = PESO_VECTOR * cos + (1 - PESO_VECTOR) * lex;\n  return { chunk_id: r.chunk_id, seccion: r.seccion, titulo: r.titulo, score: +score.toFixed(4), coseno: +cos.toFixed(4), lexico: +lex.toFixed(2), contenido: r.contenido };\n}).sort((a, b) => b.score - a.score);\nconst resultados = todos.filter((r) => r.score >= MIN_SCORE).slice(0, TOP_K);\nreturn [{ json: {\n  consulta, top_k: TOP_K, min_score: MIN_SCORE,\n  sin_resultados: resultados.length === 0,\n  mejor_score: todos[0] ? todos[0].score : 0,\n  resultados,\n  instruccion: resultados.length === 0 ? 'No hay fragmentos del manual con relevancia suficiente: respondé con la regla No sé.' : 'Respondé solo con estos fragmentos y citá la sección.'\n} }];"
+        "jsCode": "// Búsqueda híbrida sobre los 91 fragmentos del manual:\n//   score = PESO_VECTOR × similitud coseno (embeddings) + (1 − PESO_VECTOR) × coincidencia léxica (palabras de la consulta presentes en el fragmento)\n// La parte léxica rescata consultas cortas con el término exacto del manual (\"comisión sobre las ventas\").\n// Top-K y Minimum Score son parámetros de gobernanza: los fija este sub-workflow, no el agente.\nconst TOP_K = 4;\nconst MIN_SCORE = 0.4;\nconst PESO_VECTOR = 0.8;\nconst consulta = $('Entrada: consulta').first().json.consulta;\nconst consulta_expandida = $('Glosario de sinónimos').first().json.consulta_expandida; // la parte léxica usa la consulta con sinónimos\nconst q = $('Embedding de la consulta').first().json.data[0].embedding;\nconst STOP = new Set('a al algo como con cual cuando de del desde donde el ella en entre es esa ese esta este hay la las le les lo los mas me mi mis muy no nos o para pero por que se si sin sobre su sus te tiene tienen un una uno unos y ya yo qué cómo cuál cuándo dónde puedo puede hace hacer tengo'.split(' '));\nconst norm = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');\nconst raices = (s) => [...new Set(norm(s).split(/[^a-z0-9ñ]+/).filter((w) => w.length > 2 && !STOP.has(w)).map((w) => w.slice(0, 5)))];\nconst rq = raices(consulta_expandida);\nconst norma = (v) => Math.sqrt(v.reduce((s, x) => s + x * x, 0));\nconst nq = norma(q);\nconst todos = $input.all().map((it) => {\n  const r = it.json;\n  const e = JSON.parse(r.embedding);\n  let dot = 0; for (let i = 0; i < e.length; i++) dot += e[i] * q[i];\n  const cos = dot / (norma(e) * nq);\n  const rc = new Set(raices(r.contenido));\n  const lex = rq.length ? rq.filter((w) => rc.has(w)).length / rq.length : 0;\n  const score = PESO_VECTOR * cos + (1 - PESO_VECTOR) * lex;\n  return { chunk_id: r.chunk_id, seccion: r.seccion, titulo: r.titulo, score: +score.toFixed(4), coseno: +cos.toFixed(4), lexico: +lex.toFixed(2), contenido: r.contenido };\n}).sort((a, b) => b.score - a.score);\nconst resultados = todos.filter((r) => r.score >= MIN_SCORE).slice(0, TOP_K);\nreturn [{ json: {\n  consulta, consulta_expandida, top_k: TOP_K, min_score: MIN_SCORE,\n  sin_resultados: resultados.length === 0,\n  mejor_score: todos[0] ? todos[0].score : 0,\n  resultados,\n  instruccion: resultados.length === 0 ? 'No hay fragmentos del manual con relevancia suficiente: respondé con la regla No sé.' : 'Respondé solo con estos fragmentos y citá la sección.'\n} }];"
+      }
+    },
+    {
+      "id": "65fd2eaa-1956-4dc8-adc3-8c696fb1d71a",
+      "name": "Glosario de sinónimos",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        120,
+        180
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Glosario de sinónimos: suma a la consulta los términos que usa el manual (mitigación de la falla de sinónimos del M5).\n// No reemplaza: agrega. Si la consulta ya usa el término del manual, no cambia nada.\nconst consulta = String($json.consulta ?? '').trim();\nconst GLOSARIO = [\n  [/porcentaje|comisi[oó]n|me cobran por (cada )?venta|cu[aá]nto se queda|fee/i, 'comisión sobre las ventas'],\n  [/abono|suscripci[oó]n|cuota mensual|mensualidad|membres[ií]a/i, 'plan precio mensual'],\n  [/\\bcelu\\b|tel[eé]fono/i, 'celular'],\n  [/\\bapp\\b|bajar(se)? (una|alguna|la)|descargar|instalar/i, 'aplicación'],\n  [/trabad|clavad|colgad|no avanza|no pasa a cocina/i, 'sigue en En Caja'],\n  [/partir la cuenta|cada uno (paga )?lo suyo|pagar por separado|dividir/i, 'dividir la cuenta'],\n  [/\\bplata\\b|guita/i, 'dinero'],\n  [/no (est[aá]|anda) habilitad|no me deja pedir/i, 'mesa no disponible'],\n  [/c[oó]digo para entrar|clave de (la )?cocina/i, 'PIN de la cocina'],\n  [/para llevar|retirar en el local/i, 'take away'],\n];\nconst extra = GLOSARIO.filter(([re]) => re.test(consulta)).map(([, t]) => t).filter((t) => !consulta.toLowerCase().includes(t.toLowerCase()));\nreturn [{ json: { consulta, consulta_expandida: extra.length ? consulta + ' · ' + [...new Set(extra)].join(' · ') : consulta, sinonimos_agregados: [...new Set(extra)] } }];"
       }
     }
   ],
   "connections": {
-    "Entrada: consulta": {
-      "main": [
-        [
-          {
-            "node": "Embedding de la consulta",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Embedding de la consulta": {
       "main": [
         [
@@ -113,6 +117,28 @@
         [
           {
             "node": "Ranking Top-K + Minimum Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Entrada: consulta": {
+      "main": [
+        [
+          {
+            "node": "Glosario de sinónimos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Glosario de sinónimos": {
+      "main": [
+        [
+          {
+            "node": "Embedding de la consulta",
             "type": "main",
             "index": 0
           }

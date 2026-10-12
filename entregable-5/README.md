@@ -76,6 +76,13 @@ versión final, el 11/10/2026. Para repetir la auditoría, escribí el mensaje e
 Precisión: **5/5**. El análisis de las fallas encontradas durante la construcción (y sus correcciones,
 con número de ejecución) está en la Pieza 4 del PDF.
 
+### Pruebas de usuario (12/10/2026)
+
+| Mensaje | Ejecución | Resultado |
+|---|---|---|
+| `¿Me cobran un porcentaje de lo que vendo?` | 486 → 530 | Con el **glosario de sinónimos** (porcentaje → comisión) la sección 2.2 entra en el Top-4: "ProTable no cobra comisión" |
+| `¿Me cobran un porcentaje de lo que vendo? Si me doy de baja, ¿me devuelven lo que pagué de la suscripción?` | 530 | Responde lo que está en el manual y "No sé" literal para la devolución → pasa a una persona |
+
 ## Cómo importarlo
 
 1. Importá los 6 JSON en n8n. Credenciales: OpenAI (modelos y embeddings), LlamaParse (ingesta),
