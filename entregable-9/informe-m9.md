@@ -54,26 +54,25 @@ La meta de 60 % coincide con la parte de preguntas frecuentes de la mezcla (60 %
 
 **Lectura.** Con 152 consultas por mes el ahorro de horas es chico y, al arranque, el mantenimiento se come casi todo: medido solo en horas, el piloto pierde plata hasta llegar a la meta de 60 % y después tarda casi dos años en recuperar la construcción. El argumento económico del piloto no está en las horas sino en lo que el cálculo no monetiza: los ≈ 61 casos por mes que hoy esperan ≈ 10 h pasan a tener respuesta o contención en minutos, y los incidentes llegan a Slack con el caso armado. En un piloto donde ya hubo una baja paga y 3 pruebas abandonadas *(escenario)*, cada local Pro que se retiene son $50.000 por mes y cada Starter $25.000 (los 8 locales pagos facturan 5 × $25.000 + 3 × $50.000 = **$275.000 por mes**, sin comisión).
 
-### 1.2b Agentes vs. contratar una persona por área (fase inicial)
+### 1.2b Caso de negocio: costo de labor evitado (agentes + orquestador vs. una persona por área)
 
-ProTable apunta a ser una *AI company*: la pregunta del negocio no es cuántas horas le ahorra el agente a una persona que ya existe, sino **cuánto cuesta operar con agentes en lugar de contratar una persona por área** (soporte técnico, cobros, ventas y onboarding) en la fase inicial. El ROI de 1.2 mide las horas del único responsable; esta tabla mide la alternativa de contratar.
+**Perspectiva.** ProTable apunta a ser una *AI company* y opera estos agentes para su propio soporte. La pregunta de la dirección es cuánto cuesta operar con agentes en la fase inicial frente a contratar una persona por área (soporte técnico, cobros, ventas y onboarding). La tabla de 1.2 mide las horas por tarea; esta mide la decisión real, que en Argentina se toma en sueldos mensuales y no en horas.
 
-**Supuestos.** Sueldo de mercado de un puesto semi senior de soporte o Customer Success en Argentina: $1.300.000 brutos por mes (rango publicado de $1.000.000 a $1.600.000 en 2026, Computrabajo y CuántoGano; *supuesto*). Costo para la empresa = bruto × 1,45 (cargas sociales, aguinaldo y vacaciones; *supuesto*) = **$1.885.000 por mes**. 160 horas trabajadas por mes → **$11.781 por hora**. Tipo de cambio: dólar billete del Banco Nación, venta, **$1.535** (cotización del 9/10/2026) → la hora de mercado vale **≈ USD 7,7**.
+**Modelo operativo.** Los agentes hacen la **contención 24/7**: responden las consultas frecuentes y, en el resto, dan una respuesta segura y dejan el caso armado. Fuera de horario, lo que necesita una persona **queda a la espera**, salvo los **incidentes críticos en producción (P1)**, que se escalan a la persona de guardia. Siempre hace falta un humano: **un orquestador contratado** (sueldo mensual), responsable de los agentes y con **guardia nocturna para incidentes críticos**.
+
+**Supuestos.** Sueldo de mercado de un puesto semi senior de soporte o Customer Success: $1.300.000 brutos por mes (rango publicado de $1.000.000 a $1.600.000 en 2026, Computrabajo y CuántoGano; *supuesto*). Costo para la empresa = bruto × 1,45 (cargas sociales, aguinaldo y vacaciones; *supuesto*) = **$1.885.000 por mes**. Guardia pasiva nocturna = 15 % del bruto × 1,45 = **$282.750 por mes** (*supuesto*). Dólar billete del Banco Nación, venta, **$1.535** (9/10/2026).
 
 | Opción | Qué cubre | Costo mensual | En USD |
 |---|---|---|---|
-| Una persona por área (3 personas) | Lunes a viernes, 9 a 18 h | 3 × $1.885.000 = **$5.655.000** | ≈ USD 3.684 |
-| Una persona para todo el soporte | Lunes a viernes, 9 a 18 h | **$1.885.000** | ≈ USD 1.228 |
-| Un puesto cubierto las 24 h, como el agente | 168 h semanales ÷ 40 = 4,2 personas | 4,2 × $1.885.000 = **$7.917.000** | ≈ USD 5.158 |
-| **Agentes** (operación + mantenimiento) | 24 h, primera respuesta en minutos | USD 33,69 × 1.535 + 4 h × $11.781 = **$98.839** | ≈ USD 64 |
-| **Agentes + el trabajo que sigue siendo humano** | Igual, más incidentes en vivo y decisiones de dinero | $98.839 + 21,6 h × $11.781 = **$353.118** | ≈ USD 230 |
+| **A.** Una persona por área (3) + guardia para P1 | Atención de lunes a viernes de 9 a 18 h; de noche, solo P1 | 3 × $1.885.000 + $282.750 = **$5.937.750** | ≈ USD 3.868 |
+| **B.** Una persona para todo + guardia, sin agentes | Igual que A; tope ≈ 835 consultas por mes (160 h × 60 ÷ 11,5 min) | $1.885.000 + $282.750 = **$2.167.750** | ≈ USD 1.412 |
+| **C.** Agentes + un orquestador con guardia | Contención 24/7; casos humanos en horario; P1 a la guardia; tope ≈ 1.030 consultas por mes | $1.885.000 + $282.750 + USD 33,69 × 1.535 = **$2.219.464** | ≈ USD 1.446 |
 
-- **Lo que sigue siendo humano, por diseño:** incidentes en servicio (38 × 25 min) y reclamos de cobro (23 × 15 min) = 1.295 min ≈ **21,6 h por mes** *(escenario)*. En la fase inicial ese humano es Bruno: el agente evita contratar, no lo saca del circuito.
-- **Comparación honesta (agentes + trabajo humano vs. una persona):** $353.118 ÷ $1.885.000 ≈ **19 %** del costo de una sola contratación, con cobertura 24 h en vez de 45 h semanales. Contra una persona por área, ≈ 6 %.
-- **Desarrollo, a valor de mercado:** 40 h × $11.781 = **$471.250** (≈ USD 307), una sola vez. Payback contra una contratación: $471.250 ÷ ($1.885.000 − $353.118) ≈ **0,3 meses (≈ 9 días)**.
-- **Volumen.** Todo el soporte manual del piloto suma ≈ 29 h por mes (1.2): una persona por área estaría casi ociosa, y una sola alcanza en horas pero no cubre el 40 % que llega de noche o el fin de semana. El costo de los agentes crece con el volumen (tokens, voz y plan de n8n, 1.4); el de las personas, con la cobertura horaria.
-- **Sensibilidad del ROI de 1.2.** Con la hora de mercado (≈ USD 7,7) en lugar de los USD 20 de la clase, el ahorro en horas no llega al punto de equilibrio ni a los 3 meses (USD 9,4 por hora). El caso económico del piloto no está en ahorrar horas de una persona existente, sino en **no tener que contratar** para cubrir el soporte.
-- n8n se cobra en euros: con el euro billete del BNA ($1.765) los €24 son $42.360, contra $41.445 con el tipo de cambio supuesto de 1.4. No cambia la conclusión.
+- **C contra A (la pregunta de la dirección):** cuesta **37 %** de una persona por área, con un ahorro de **$3.718.286 por mes (≈ USD 2.422)**. El desarrollo (40 h a $11.781, la hora equivalente del sueldo: $471.250) se recupera en **≈ 4 días** de ese ahorro.
+- **C contra B (honestidad):** en el piloto una sola persona alcanza en volumen, así que los agentes cuestan **$51.714 más por mes (+2,4 %)**. Lo que compra esa diferencia: respuesta o contención en minutos para el 40 % que llega fuera de horario (hoy espera ≈ 10 h), ≈ 24 % más capacidad antes de contratar a una segunda persona (1.030 contra 835 consultas por mes) y la trazabilidad y el control de calidad del Juez (Dimensión 2).
+- **Carga del orquestador en el piloto** *(escenario)*: casos humanos por diseño 21,6 h (incidentes 38 × 25 min y reclamos de cobro 23 × 15 min) + mantenimiento 4 h + muestra semanal de 20 casos ≈ 4,3 h (*supuesto*, 1 h por semana) + aprobación de borradores de email 0,7 h (≈ 44 × 1 min) = **≈ 30,6 h por mes, 19 % de su jornada**. El resto del tiempo queda para onboarding de locales y para absorber el crecimiento: con la misma persona se llega a ≈ 1.030 consultas por mes (≈ 6,8 veces el piloto, la escala de la columna de 1.000 ejecuciones del M8).
+- **Sensibilidad del ROI de 1.2.** Con la hora equivalente de mercado (≈ USD 7,7) en lugar de los USD 20 de la clase, el ahorro de horas no alcanza el punto de equilibrio (USD 9,4 por hora). El caso económico está en **no contratar una persona por área**, no en ahorrar horas de alguien que ya está.
+- n8n se cobra en euros: con el euro billete del BNA ($1.765), los €24 son $42.360 contra $41.445 con el tipo de cambio supuesto de 1.4. No cambia la conclusión.
 
 ### 1.3 Capacidad de absorber picos
 
@@ -89,7 +88,7 @@ El 40 % de las consultas llega fuera de horario, cuando no hay nadie atendiendo 
 | Variante A del M8 (Groq `openai/gpt-oss-120b`, descartada) | Límite base de 200.000 tokens/día ÷ ≈ 4.167 tokens por caso (estimación con los prompts del M4) | ≈ 48 casos/día: habría sido el techo. Además dio 2 fallas técnicas en 5 corridas *(M8)* |
 | Revisión humana de borradores (email) | 1 min por borrador (*supuesto*) | **≈ 60 casos/hora**, pero **solo cuando Bruno está disponible**: es el cuello real |
 
-**Lectura.** En el pico, aun procesando de a una consulta por vez, el agente atiende unas 68 veces más casos por hora que una persona (356 ÷ 5,2). El cuello de botella deja de ser la atención y pasa a ser la aprobación: hay **un solo aprobador y sin suplente** *(escenario)*, que es un riesgo declarado (3.1, R6). Los límites de Groq de la última fila son los "base limits for the Developer plan" publicados en la documentación.
+**Lectura.** En el pico, aun procesando de a una consulta por vez, el agente atiende unas 68 veces más casos por hora que una persona (356 ÷ 5,2). El cuello de botella deja de ser la atención y pasa a ser la aprobación: hay **un solo orquestador** *(escenario)*, con guardia solo para incidentes críticos, que es un riesgo declarado (3.1, R6). Los límites de Groq de la última fila son los "base limits for the Developer plan" publicados en la documentación.
 
 ### 1.4 Matriz TCO mensual
 
@@ -270,11 +269,11 @@ Las filas de ejemplo de este informe (como `pt-403-mv4nolag`) son de las corrida
 | R4 | **Exposición de datos personales.** Email, nombre y montos llegan al proveedor del LLM, a Slack y a los logs | Limpieza del payload (solo From, Subject y BodyText; sin adjuntos, firmas ni citas). Slack recibe un resumen mínimo, nunca el email entero. HubSpot solo lee `email` y `firstname`. En el log (propuesto, 2.2): la plantilla del prompt en vez del prompt renderizado y el email enmascarado. **Pendiente (recomendado, no obligatorio):** ZDR en el proveedor (3.2) | *④ Set – Limpiar payload email* · *Set – Payload mínimo Slack* · *② HubSpot – Look up* · *Log de trazabilidad* |
 | R5 | **Acciones o costos fuera de control** (bucles, reintentos infinitos, un modelo que cambia sin aviso) | IF anti auto-reply. `maxIterations` = 5, timeout de 60 s y 2 reintentos. Autocorrección del juez ≤ 2. Topes de gasto por entorno: **plan a configurar por el dueño de la cuenta** (1.6), no vigente hoy. **Mitigado:** `qwen/qwen3.8-27b` figuraba como *Preview* en Groq ("evaluation only", no para producción); se reemplazó y en producción Router y workers usan `gpt-4o-mini` de OpenAI, un modelo de producción. El A/B del M8 confirmó el cambio (B 5/5) y mostró otro motivo para dejar Groq fuera del camino principal: 2 fallas técnicas en 5 corridas. Riesgo residual: la muestra es chica (ver R3) | *① IF – ¿Es auto-reply?* · opciones de los *Especialistas* · *Delegar a Worker* (retry) · consolas de los proveedores |
 
-**Riesgo operativo declarado (R6): un solo aprobador, sin suplente.** Los casos rojos y los borradores de email los aprueba **Bruno en Slack, y no hay suplente** *(escenario)*. Con el 40 % de las consultas fuera de horario, un caso rojo de noche puede quedar sin respuesta. No se elimina, se acota:
+**Riesgo operativo declarado (R6): un solo orquestador.** Los casos rojos, los borradores de email y los incidentes los atiende **una sola persona, el orquestador** (en la fase inicial, Bruno) *(escenario)*. Con el 40 % de las consultas fuera de horario, no se elimina, se acota con el modelo operativo de 1.2b:
 
-- **Vencimiento de la aprobación:** un P1 vence a los **15 min**; el resto, a las **4 h hábiles** *(escenario)*.
-- **Si vence:** el cliente recibe una **respuesta de contención segura** ("recibimos tu consulta, la está revisando una persona"), sin promesas ni datos, y Slack `#operaciones` recibe un aviso de aprobación vencida con el `traceId`.
-- **Cuándo se revisa:** cuando entre una segunda persona al soporte, se la suma como suplente y este riesgo se cierra.
+- **Contención 24/7:** fuera de horario el agente responde lo frecuente y, en lo demás, envía una **respuesta de contención segura** ("recibimos tu consulta, la está revisando una persona"), sin promesas ni datos. El caso queda a la espera del horario hábil, con aviso en Slack `#operaciones` y su `traceId`.
+- **Incidentes críticos en producción (P1):** no esperan. Se escalan a la **persona de guardia nocturna** (rol del orquestador, con guardia pasiva). La aprobación de un P1 vence a los **15 min**; el resto, a las **4 h hábiles** *(escenario)*. Si vence, no se ejecuta nada (falla cerrada).
+- **Cuándo se revisa:** al superar ≈ 1.030 consultas por mes (tope de un orquestador, 1.2b) o cuando entre una segunda persona, que pasa a ser suplente y comparte la guardia.
 
 ### 3.2 Privacidad: qué configuración evita que los datos se usen para entrenar
 
