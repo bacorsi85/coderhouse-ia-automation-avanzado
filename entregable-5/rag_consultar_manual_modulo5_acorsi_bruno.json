@@ -1,0 +1,135 @@
+{
+  "name": "rag_consultar_manual_modulo5_acorsi_bruno",
+  "nodes": [
+    {
+      "id": "c3673fdf-5334-463f-a908-64377dee0fa3",
+      "name": "Entrada: consulta",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "inputSource": "workflowInputs",
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "consulta",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "ab7c12fe-6c17-4331-9a97-4645edec3359",
+      "name": "Embedding de la consulta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/embeddings",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify({ model: \"text-embedding-3-small\", input: $json.consulta }) }}",
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "7nT3QQUKRY4bT0ju",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "cf0baa37-31ba-4d92-979b-f564923e609f",
+      "name": "Leer fragmentos del manual",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "QjsleCn6E5vF6Mzm"
+        },
+        "returnAll": true
+      },
+      "executeOnce": true
+    },
+    {
+      "id": "b9fe43b2-ee6a-4d1a-9c21-f301f5f81f17",
+      "name": "Ranking Top-K + Minimum Score",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Búsqueda híbrida sobre los 91 fragmentos del manual:\n//   score = PESO_VECTOR × similitud coseno (embeddings) + (1 − PESO_VECTOR) × coincidencia léxica (palabras de la consulta presentes en el fragmento)\n// La parte léxica rescata consultas cortas con el término exacto del manual (\"comisión sobre las ventas\").\n// Top-K y Minimum Score son parámetros de gobernanza: los fija este sub-workflow, no el agente.\nconst TOP_K = 4;\nconst MIN_SCORE = 0.4;\nconst PESO_VECTOR = 0.8;\nconst consulta = $('Entrada: consulta').first().json.consulta;\nconst q = $('Embedding de la consulta').first().json.data[0].embedding;\nconst STOP = new Set('a al algo como con cual cuando de del desde donde el ella en entre es esa ese esta este hay la las le les lo los mas me mi mis muy no nos o para pero por que se si sin sobre su sus te tiene tienen un una uno unos y ya yo qué cómo cuál cuándo dónde puedo puede hace hacer tengo'.split(' '));\nconst norm = (s) => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');\nconst raices = (s) => [...new Set(norm(s).split(/[^a-z0-9ñ]+/).filter((w) => w.length > 2 && !STOP.has(w)).map((w) => w.slice(0, 5)))];\nconst rq = raices(consulta);\nconst norma = (v) => Math.sqrt(v.reduce((s, x) => s + x * x, 0));\nconst nq = norma(q);\nconst todos = $input.all().map((it) => {\n  const r = it.json;\n  const e = JSON.parse(r.embedding);\n  let dot = 0; for (let i = 0; i < e.length; i++) dot += e[i] * q[i];\n  const cos = dot / (norma(e) * nq);\n  const rc = new Set(raices(r.contenido));\n  const lex = rq.length ? rq.filter((w) => rc.has(w)).length / rq.length : 0;\n  const score = PESO_VECTOR * cos + (1 - PESO_VECTOR) * lex;\n  return { chunk_id: r.chunk_id, seccion: r.seccion, titulo: r.titulo, score: +score.toFixed(4), coseno: +cos.toFixed(4), lexico: +lex.toFixed(2), contenido: r.contenido };\n}).sort((a, b) => b.score - a.score);\nconst resultados = todos.filter((r) => r.score >= MIN_SCORE).slice(0, TOP_K);\nreturn [{ json: {\n  consulta, top_k: TOP_K, min_score: MIN_SCORE,\n  sin_resultados: resultados.length === 0,\n  mejor_score: todos[0] ? todos[0].score : 0,\n  resultados,\n  instruccion: resultados.length === 0 ? 'No hay fragmentos del manual con relevancia suficiente: respondé con la regla No sé.' : 'Respondé solo con estos fragmentos y citá la sección.'\n} }];"
+      }
+    }
+  ],
+  "connections": {
+    "Entrada: consulta": {
+      "main": [
+        [
+          {
+            "node": "Embedding de la consulta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embedding de la consulta": {
+      "main": [
+        [
+          {
+            "node": "Leer fragmentos del manual",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer fragmentos del manual": {
+      "main": [
+        [
+          {
+            "node": "Ranking Top-K + Minimum Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "active": false,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  },
+  "id": "sNKqywOYTh2CIpzx"
+}

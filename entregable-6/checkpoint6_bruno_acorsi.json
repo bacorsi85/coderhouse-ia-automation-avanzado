@@ -1,0 +1,825 @@
+{
+  "name": "checkpoint6_bruno_acorsi",
+  "nodes": [
+    {
+      "id": "6cc08817-b208-4070-8218-5bad1a174e73",
+      "name": "Telegram Trigger - Nota de voz",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "webhookId": "9461ce29-81dc-4789-9024-49928103d83e",
+      "credentials": {
+        "telegramApi": {
+          "id": "tMsxM80rEpMWe9Dv",
+          "name": "brunobot"
+        }
+      }
+    },
+    {
+      "id": "8a8fa1ea-005c-4fc3-ad36-5099d0d29c97",
+      "name": "Telegram - Descargar nota de voz",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        300
+      ],
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice?.file_id ?? $json.message.audio?.file_id }}",
+        "download": true,
+        "additionalFields": {
+          "mimeType": "audio/ogg"
+        }
+      },
+      "onError": "continueErrorOutput",
+      "webhookId": "6b499421-ea25-4707-b88a-4944d7e602e8",
+      "credentials": {
+        "telegramApi": {
+          "id": "tMsxM80rEpMWe9Dv",
+          "name": "brunobot"
+        }
+      }
+    },
+    {
+      "id": "11aa1ba1-9c4f-4652-95e4-ce3048dbcf8a",
+      "name": "OpenAI Whisper - Transcribir (es)",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        480,
+        300
+      ],
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "binaryPropertyName": "data",
+        "options": {
+          "language": "es",
+          "temperature": 0
+        }
+      },
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "openAiApi": {
+          "id": "7nT3QQUKRY4bT0ju",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "a8518620-f2be-45e0-a935-8468a53c2475",
+      "name": "Switch - Contingencia post-Whisper",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        720,
+        300
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "s1",
+                    "leftValue": "={{ ($json.text ?? '').trim() }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "empty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "vacia"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "s2",
+                    "leftValue": "={{ /\\p{L}/u.test(($json.text ?? '').trim()) }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "sin_letras"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "s3",
+                    "leftValue": "={{ ($json.text ?? '').trim().replace(/[^\\p{L}]/gu,'').length }}",
+                    "rightValue": 4,
+                    "operator": {
+                      "type": "number",
+                      "operation": "lt"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "muy_corta"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "s4",
+                    "leftValue": "={{ /(subt[ií]tulos (realizados|por)|amara\\.org|gracias por ver|suscr[ií]bete|m[uú]sica de fondo)/i.test(($json.text ?? '').trim()) }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "alucinacion_ruido"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "loose",
+                  "version": 1
+                },
+                "conditions": [
+                  {
+                    "id": "s5",
+                    "leftValue": "={{ ($('Telegram Trigger - Nota de voz').first().json.message.voice?.duration ?? 0) > 90 || ($json.text ?? '').trim().length > 1200 }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "muy_largo"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "ok"
+        }
+      }
+    },
+    {
+      "id": "5b1d9976-2d46-40f3-8fee-6fd0a1b5d82c",
+      "name": "Set - Entrada de voz (descarta audio)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        980,
+        420
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "v1",
+              "name": "texto_usuario",
+              "value": "={{ $('OpenAI Whisper - Transcribir (es)').first().json.text.trim() }}",
+              "type": "string"
+            },
+            {
+              "id": "v2",
+              "name": "chat_id",
+              "value": "={{ $('Telegram Trigger - Nota de voz').first().json.message.chat.id }}",
+              "type": "string"
+            },
+            {
+              "id": "v3",
+              "name": "session_id",
+              "value": "={{ 'tg:' + $('Telegram Trigger - Nota de voz').first().json.message.chat.id }}",
+              "type": "string"
+            },
+            {
+              "id": "v4",
+              "name": "duracion_s",
+              "value": "={{ $('Telegram Trigger - Nota de voz').first().json.message.voice?.duration ?? 0 }}",
+              "type": "number"
+            },
+            {
+              "id": "v5",
+              "name": "canal",
+              "value": "telegram_voz",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "includeBinary": false
+        }
+      }
+    },
+    {
+      "id": "4c44392a-2b80-49b2-a52b-6826d0df2e8f",
+      "name": "AI Agent - Soporte por voz",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1220,
+        420
+      ],
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.texto_usuario }}",
+        "options": {
+          "systemMessage": "Sos la voz del soporte de ProTable (pedidos y pagos por QR para gastronomía). Te hablan dueños y encargados de locales por nota de voz.\n\nREGLAS DE VOZ (obligatorias)\n- Respondé en 200 caracteres como máximo, en una o dos oraciones cortas, porque tu respuesta se convierte en audio.\n- Español rioplatense con voseo (\"tocá\", \"revisá\", \"podés\"). Sin listas, sin markdown, sin emojis, sin links. No nombres secciones ni el manual: en audio no sirven.\n- No saludes ni te despidas: andá directo a la respuesta.\n\nFUENTE DE VERDAD\n- Para cualquier pregunta sobre ProTable, consultá SIEMPRE la herramienta consultar_manual_protable antes de responder, con el vocabulario del manual.\n- Respondé solo con lo que dicen los fragmentos. Si no responden exactamente lo que te preguntan, decí: \"No sé, eso no está en el manual. Te paso con una persona del equipo.\"\n- Nunca prometas reembolsos, descuentos ni plazos. No ofrezcas ni menciones facturación electrónica ni organismos fiscales: esa función no existe.\n\nSi lo que llegó no se entiende o no es una consulta, pedí que lo repita en una frase.",
+          "maxIterations": 4
+        }
+      }
+    },
+    {
+      "id": "60241c9f-83ad-4f56-bd87-8f147076f1e1",
+      "name": "Modelo de voz (OpenAI gpt-4o-mini)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1140,
+        660
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0.3,
+          "maxTokens": 200
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "7nT3QQUKRY4bT0ju",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "id": "5a23f8ad-ecf1-4bd7-9ac6-4159ed3b9e1c",
+      "name": "Memoria corta (voz)",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1280,
+        660
+      ],
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Set - Entrada de voz (descarta audio)').first().json.session_id }}",
+        "contextWindowLength": 6
+      }
+    },
+    {
+      "id": "53dc059c-f703-43c0-8570-46d8d5be5f07",
+      "name": "consultar_manual_protable",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1420,
+        660
+      ],
+      "parameters": {
+        "description": "Busca en el Manual de soporte de ProTable v1.0 (la base de conocimiento oficial) los fragmentos que responden una consulta sobre el producto: planes y precios, pagos con MercadoPago o efectivo, pedidos en mesa y take away, división de la cuenta, tablero Kanban, pantalla de cocina, mesas y códigos QR, y problemas frecuentes con su solución. Devuelve hasta 4 fragmentos con su número de sección y su puntaje de relevancia; si no hay nada relevante devuelve sin_resultados = true. Escribí la consulta con el vocabulario del manual, en español.",
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "sNKqywOYTh2CIpzx"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "consulta": "={{ $fromAI('consulta', 'Consulta en español con el vocabulario del manual de soporte de ProTable', 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "consulta",
+              "displayName": "consulta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      }
+    },
+    {
+      "id": "e9e9159e-3f55-4666-92c9-cbb0a502eb6e",
+      "name": "Code - Límite duro 200 caracteres",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        420
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "language": "javaScript",
+        "jsCode": "// Límite duro de 200 caracteres para TTS: limpia markdown, links y emojis y corta en límite de palabra\nconst raw = String($json.output ?? $json.text ?? '').trim();\nlet t = raw.replace(/\\[([^\\]]+)\\]\\([^)]*\\)/g, '$1').replace(/https?:\\/\\/\\S+/g, '').replace(/[*_#`>|]/g, '')\n  .replace(/\\((Manual de soporte|Secci[oó]n(es)?)[^)]*\\)/gi, '').replace(/[^.!?]*\\bsecci[oó]n(es)?\\s*\\d+(\\.\\d+)*(\\s*(y|,)\\s*\\d+(\\.\\d+)*)*[^.!?]*[.!?]?/gi, '').replace(/\\s+([.,;:])/g, '$1').replace(/[\\u{1F300}-\\u{1FAFF}\\u{2600}-\\u{27BF}]/gu, '').replace(/\\s+/g, ' ').trim();\nconst MAX = 200;\nlet truncado = false;\nif (t.length > MAX) {\n  truncado = true;\n  const corte = t.slice(0, MAX);\n  const finOracion = Math.max(corte.lastIndexOf('. '), corte.lastIndexOf('? '), corte.lastIndexOf('! '));\n  t = finOracion > 80 ? corte.slice(0, finOracion + 1) : corte.slice(0, corte.lastIndexOf(' ')).replace(/[,;:]$/, '') + '.';\n}\nif (!t) t = 'No te entendí bien. ¿Me lo repetís en una frase?';\nreturn [{ json: { texto_tts: t, chars: t.length, truncado, chat_id: $('Set - Entrada de voz (descarta audio)').first().json.chat_id } }];"
+      }
+    },
+    {
+      "id": "3e4305cb-aebd-40e2-99a4-2c95b249cc81",
+      "name": "ElevenLabs - Texto a voz (PENDIENTE: instalar nodo)",
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1760,
+        420
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "26ccdc33-b2e8-4bd1-b0f7-357b225545c2",
+      "name": "Telegram - Responder con audio",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2000,
+        420
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendAudio",
+        "chatId": "={{ $('Code - Límite duro 200 caracteres').first().json.chat_id }}",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "additionalFields": {
+          "fileName": "respuesta_protable.mp3",
+          "title": "Soporte ProTable",
+          "performer": "ProTable",
+          "caption": ""
+        }
+      },
+      "webhookId": "ad693af9-c27b-434e-af4d-955f1baa043f",
+      "credentials": {
+        "telegramApi": {
+          "id": "tMsxM80rEpMWe9Dv",
+          "name": "brunobot"
+        }
+      }
+    },
+    {
+      "id": "9a6420ce-c8a4-4980-9e56-33aec13b109a",
+      "name": "Set - Fin de flujo (sin binario)",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2240,
+        420
+      ],
+      "parameters": {
+        "mode": "manual",
+        "includeOtherFields": false,
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "status",
+              "value": "enviado",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {
+          "includeBinary": false
+        }
+      }
+    },
+    {
+      "id": "e29dae43-c405-4633-974b-59ecea27815d",
+      "name": "Telegram - Pedir nota de voz",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        480,
+        80
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Telegram Trigger - Nota de voz').first().json.message.chat.id }}",
+        "text": "Hola, soy el soporte de ProTable. Mandame una nota de voz con tu consulta.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "9c47ed26-cd31-464c-b3c4-29bd0b17cdc2",
+      "credentials": {
+        "telegramApi": {
+          "id": "tMsxM80rEpMWe9Dv",
+          "name": "brunobot"
+        }
+      }
+    },
+    {
+      "id": "58e2ba7d-94d0-41b7-88d6-6e46397aa53e",
+      "name": "Telegram - No pude procesar el audio",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        80
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Telegram Trigger - Nota de voz').first().json.message.chat.id }}",
+        "text": "No pude procesar tu audio. ¿Me lo mandás de nuevo o me lo escribís?",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "4c63ee63-3e63-42f8-9f1e-e892a262fa17",
+      "credentials": {
+        "telegramApi": {
+          "id": "tMsxM80rEpMWe9Dv",
+          "name": "brunobot"
+        }
+      }
+    },
+    {
+      "id": "6b7784b9-d9cb-4890-9dc0-de886ef1fefa",
+      "name": "Telegram - No escuché nada",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        980,
+        120
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Telegram Trigger - Nota de voz').first().json.message.chat.id }}",
+        "text": "No escuché nada en el audio. Probá grabarlo de nuevo, cerca del micrófono.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "61cd8a0e-0b1d-4b6a-8356-95c10528c2cd",
+      "credentials": {
+        "telegramApi": {
+          "id": "tMsxM80rEpMWe9Dv",
+          "name": "brunobot"
+        }
+      }
+    },
+    {
+      "id": "163fb5e3-01a3-4d15-b8e9-d04f8794d0be",
+      "name": "Telegram - Muy corto",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        980,
+        200
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Telegram Trigger - Nota de voz').first().json.message.chat.id }}",
+        "text": "Te escuché muy poquito. ¿Me contás en una frase qué necesitás?",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "9c0fcdd5-5594-4282-a761-6a6b49381b6b",
+      "credentials": {
+        "telegramApi": {
+          "id": "tMsxM80rEpMWe9Dv",
+          "name": "brunobot"
+        }
+      }
+    },
+    {
+      "id": "354c8706-253d-4431-ab89-9c306ba84f67",
+      "name": "Telegram - Mucho ruido",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        980,
+        280
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Telegram Trigger - Nota de voz').first().json.message.chat.id }}",
+        "text": "Había mucho ruido y no te entendí bien. ¿Me lo repetís en un lugar más tranquilo?",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "64885b7f-0df9-472b-bf4a-291f4d3bf05f",
+      "credentials": {
+        "telegramApi": {
+          "id": "tMsxM80rEpMWe9Dv",
+          "name": "brunobot"
+        }
+      }
+    },
+    {
+      "id": "9243d5d6-148f-41a8-8bba-b99997dfdeae",
+      "name": "Telegram - Audio muy largo",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        980,
+        360
+      ],
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $('Telegram Trigger - Nota de voz').first().json.message.chat.id }}",
+        "text": "El audio es muy largo para este canal. Contame lo principal en menos de un minuto.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "webhookId": "9e5ba934-2c83-480b-9c6a-6df38e3fae10",
+      "credentials": {
+        "telegramApi": {
+          "id": "tMsxM80rEpMWe9Dv",
+          "name": "brunobot"
+        }
+      }
+    },
+    {
+      "id": "398e8ea1-e4a4-4478-b2a4-02048d0bb02e",
+      "name": "Nota M6 - Voz",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -140
+      ],
+      "parameters": {
+        "content": "## M6 · Voz (Telegram → Whisper → Agente con RAG → ElevenLabs → Telegram)\nWhisper inmediatamente después de la descarga; Switch de contingencia (vacío, sin letras, muy corto, alucinación por ruido, muy largo) + error output para audio corrupto. El binario se descarta en 'Set - Entrada de voz' y nunca se guarda: no se registra ni el audio ni la transcripción. Respuesta ≤ 200 caracteres (Code de corte en palabra) → MP3 → sendAudio.",
+        "width": 1200,
+        "height": 170,
+        "color": 5
+      }
+    }
+  ],
+  "connections": {
+    "Telegram Trigger - Nota de voz": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Descargar nota de voz",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram - Descargar nota de voz": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Whisper - Transcribir (es)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram - Pedir nota de voz",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Whisper - Transcribir (es)": {
+      "main": [
+        [
+          {
+            "node": "Switch - Contingencia post-Whisper",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram - No pude procesar el audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch - Contingencia post-Whisper": {
+      "main": [
+        [
+          {
+            "node": "Telegram - No escuché nada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram - No escuché nada",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram - Muy corto",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram - Mucho ruido",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram - Audio muy largo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set - Entrada de voz (descarta audio)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Entrada de voz (descarta audio)": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Soporte por voz",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Modelo de voz (OpenAI gpt-4o-mini)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Soporte por voz",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memoria corta (voz)": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent - Soporte por voz",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "consultar_manual_protable": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent - Soporte por voz",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Soporte por voz": {
+      "main": [
+        [
+          {
+            "node": "Code - Límite duro 200 caracteres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Límite duro 200 caracteres": {
+      "main": [
+        [
+          {
+            "node": "ElevenLabs - Texto a voz (PENDIENTE: instalar nodo)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ElevenLabs - Texto a voz (PENDIENTE: instalar nodo)": {
+      "main": [
+        [
+          {
+            "node": "Telegram - Responder con audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram - Responder con audio": {
+      "main": [
+        [
+          {
+            "node": "Set - Fin de flujo (sin binario)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "saveManualExecutions": true,
+    "executionTimeout": 120
+  },
+  "tags": [],
+  "active": false,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  },
+  "id": "SsRsPUi9WgiBoQ86"
+}
