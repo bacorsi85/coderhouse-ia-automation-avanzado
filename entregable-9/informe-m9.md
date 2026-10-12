@@ -47,46 +47,59 @@ La meta de 60 % coincide con la parte de preguntas frecuentes de la mezcla (60 %
 - Costo de la hora de soporte: **USD 20 por hora**, *supuesto* tomado de la diapositiva de ROI de la clase 8 (es el mismo valor que usó el M8 para costear la revisión humana).
 - **Costo manual por caso** (método de la clase 9: costo por caso y capacidad diaria de una persona): 11,5 min × USD 20 ÷ 60 = **USD 3,83 por caso** con la hora de la clase, o 11,5 min × $11.781 ÷ 60 = **$2.258 ≈ USD 1,47** con la hora equivalente de mercado (1.2b), del mismo orden que los USD 2 del ejemplo de la clase. Capacidad de una persona: 480 min ÷ 11,5 ≈ **42 consultas por día** (la clase usó ≈ 60).
 - Ahorro mensual (USD) = horas netas × costo de la hora = 1,08 × 20 = **USD 21,60 al arranque** y 3,58 × 20 = **USD 71,60 a los 3 meses**.
-- ROI mensual = (Ahorro − TCO) ÷ TCO, con el TCO del piloto (1.4): **USD 33,69** con n8n Starter mensual y la voz incluida. Al arranque: (21,60 − 33,69) ÷ 33,69 ≈ **−36 %**. A los 3 meses: (71,60 − 33,69) ÷ 33,69 ≈ **+113 %**.
-- **Punto de equilibrio:** el agente se paga solo si la hora vale más que TCO ÷ horas netas = 33,69 ÷ 1,08 ≈ **USD 31 por hora al arranque** y 33,69 ÷ 3,58 ≈ **USD 9,4 por hora a los 3 meses**. Con USD 20 por hora, el arranque queda por debajo y los 3 meses por encima.
+- ROI mensual = (Ahorro − TCO) ÷ TCO, con el TCO del piloto (1.4): **USD 33,42** con n8n Starter mensual y la voz incluida. Al arranque: (21,60 − 33,42) ÷ 33,42 ≈ **−35 %**. A los 3 meses: (71,60 − 33,42) ÷ 33,42 ≈ **+114 %**.
+- **Punto de equilibrio:** el agente se paga solo si la hora vale más que TCO ÷ horas netas = 33,42 ÷ 1,08 ≈ **USD 31 por hora al arranque** y 33,42 ÷ 3,58 ≈ **USD 9,3 por hora a los 3 meses**. Con USD 20 por hora, el arranque queda por debajo y los 3 meses por encima.
 - Costo de implementación = 40 horas de construcción × USD 20 = **USD 800** *(escenario supuesto)*.
-- Payback (meses) = costo de implementación ÷ (Ahorro − TCO). Al arranque el margen es 21,60 − 33,69 = −12,09 por mes: **no hay payback** mientras K1a + K1b esté en 40 %. A los 3 meses el margen es 71,60 − 33,69 = 37,91 por mes: 800 ÷ 37,91 ≈ **21 meses**, si ese margen se sostiene.
-- **Sensibilidad por K1b:** los casos asistidos (K1b) igual consumen el clic de aprobación. Si se descuenta 1 min de revisión (*supuesto*, 1.3) por cada uno, con el ≈ 29 % de casos por email: al arranque 61 × 29 % ≈ 17 min (≈ USD 5,80) y a los 3 meses 91 × 29 % ≈ 26 min (≈ USD 8,70). El ROI queda en ≈ **−53 %** al arranque y ≈ **+87 %** a los 3 meses, en vez de −36 % y +113 %.
+- Payback (meses) = costo de implementación ÷ (Ahorro − TCO). Al arranque el margen es 21,60 − 33,42 = −11,82 por mes: **no hay payback** mientras K1a + K1b esté en 40 %. A los 3 meses el margen es 71,60 − 33,42 = 38,18 por mes: 800 ÷ 38,18 ≈ **21 meses**, si ese margen se sostiene.
+- **Sensibilidad por K1b:** los casos asistidos (K1b) igual consumen el clic de aprobación. Si se descuenta 1 min de revisión (*supuesto*, 1.3) por cada uno, con el ≈ 29 % de casos por email: al arranque 61 × 29 % ≈ 17 min (≈ USD 5,80) y a los 3 meses 91 × 29 % ≈ 26 min (≈ USD 8,70). El ROI queda en ≈ **−53 %** al arranque y ≈ **+88 %** a los 3 meses, en vez de −35 % y +114 %.
 
 **Lectura.** Con 152 consultas por mes el ahorro de horas es chico y, al arranque, el mantenimiento se come casi todo: medido solo en horas, el piloto pierde plata hasta llegar a la meta de 60 % y después tarda casi dos años en recuperar la construcción. El argumento económico del piloto no está en las horas sino en lo que el cálculo no monetiza: los ≈ 61 casos por mes que hoy esperan ≈ 10 h pasan a tener respuesta o contención en minutos, y los incidentes llegan a Slack con el caso armado. En un piloto donde ya hubo una baja paga y 3 pruebas abandonadas *(escenario)*, cada local Pro que se retiene son $50.000 por mes y cada Starter $25.000 (los 8 locales pagos facturan 5 × $25.000 + 3 × $50.000 = **$275.000 por mes**, sin comisión).
 
 ### 1.2b Business case: viable para el cliente y para el proveedor
 
-**Perspectiva.** Como en la clase 9 ("no estamos haciendo el ROI del cliente, estamos haciendo el nuestro"), la propuesta se vende: **el proveedor** (el consultor que diseña, implementa y da soporte a la red de agentes, el autor del informe M7) se la ofrece a **ProTable, el cliente**, para su soporte a locales. Tiene que cerrar de los dos lados. **Reparto de costos:** el cliente paga toda la infraestructura de la solución, fija y variable (n8n, tokens, voz), en sus propias cuentas y con el tope de gasto de 1.6; el proveedor pone el desarrollo, la implementación y el soporte, y los cobra con un **setup** y un **fee mensual**. Se calcula a **1.000 consultas por mes**, la proyección del M8, y se muestra también el piloto.
+**Perspectiva.** Como en la clase 9 ("no estamos haciendo el ROI del cliente, estamos haciendo el nuestro"), la propuesta se vende: **el proveedor** (el consultor que diseña, implementa y opera la red de agentes, autor del informe M7) se la ofrece a **ProTable, el cliente**, para su soporte a locales. Tiene que cerrar de los dos lados. **Reparto de costos:** el cliente paga toda la infraestructura de la solución, fija y variable (n8n, tokens, voz), en sus propias cuentas y con el presupuesto capeado de 1.6; el proveedor pone desarrollo, implementación y soporte. **Modelo de precio híbrido** (clase 10, "Modelos comerciales"): setup + retainer + success fee.
 
-**Supuestos.** Sueldo semi senior de soporte: $1.300.000 brutos (rango publicado de $1.000.000 a $1.600.000 en 2026, Computrabajo y CuántoGano) × 1,45 de cargas = **$1.885.000 por mes** por persona; guardia pasiva nocturna para P1 = 15 % del bruto × 1,45 = $282.750. Una persona atiende como máximo ≈ 835 consultas por mes (160 h × 60 ÷ 11,5 min). Hora del proveedor: USD 20 (clase 8). Setup USD 1.200 y fee USD 400 por mes: **propuesta a validar**. Dólar billete BNA, venta, **$1.535** (9/10/2026). Todo *supuesto* o *escenario*.
+**Unidades.** Una **consulta** es una conversación; cada mensaje es una **vuelta** y una **ejecución** del flujo. Se supone un promedio de **3 vueltas por consulta**, con un **tope de 10** (1.5). Cada vuelta suma historial (≈ 200 tokens por intercambio previo, hasta 5, que leen el Router y las 2 llamadas del especialista; *estimación*: el M8 midió solo conversaciones de una vuelta).
 
-**Modelo operativo.** Los agentes hacen la **contención 24/7**. Lo que necesita una persona queda a la espera del horario hábil, salvo los **incidentes críticos en producción (P1)**, que van a la guardia. El humano es **un orquestador contratado por el cliente**, con sueldo mensual y guardia nocturna: aprueba en Slack, atiende incidentes y cobros, y revisa la muestra semanal (≈ 30,6 h por mes en el piloto, 19 % de su jornada).
+**Supuestos.** Sueldo semi senior de soporte: $1.300.000 brutos (rango publicado de $1.000.000 a $1.600.000 en 2026, Computrabajo y CuántoGano) × 1,45 de cargas = **$1.885.000 por mes** por persona; guardia pasiva nocturna para P1 = 15 % del bruto × 1,45 = $282.750. Una persona atiende como máximo ≈ 835 consultas por mes (160 h × 60 ÷ 11,5 min). Hora del proveedor USD 20 (clase 8). Dólar billete BNA, venta, **$1.535** (9/10/2026); n8n en euros a €1 = USD 1,125 (1.4). Precios del proveedor: **propuesta a validar**. Todo *supuesto* o *escenario*.
 
-**Lado del cliente (ProTable), a 1.000 consultas por mes**
+**Modelo operativo.** Los agentes hacen la **contención 24/7**. Lo que necesita una persona queda a la espera del horario hábil, salvo los **incidentes críticos en producción (P1)**, que van a la guardia. El humano es **un orquestador contratado por el cliente**, con sueldo mensual y guardia: aprueba en Slack, atiende incidentes y cobros, y revisa la muestra semanal. La solución no se vende como despidos sino como **capacidad liberada para absorber demanda** (clase 10): con agentes, una persona alcanza hasta ≈ 1.060 consultas por mes en lugar de 835.
+
+**Precio del proveedor**
+
+| Componente | Qué cubre | Costo del proveedor | Precio | Margen |
+|---|---|---|---|---|
+| **Setup** (una vez) | Descubrimiento, diseño, implementación, pruebas y documentación | 40 h × USD 20 = USD 800 | **USD 1.200** | USD 400 (33 %) |
+| **Retainer** (mensual) | Ajuste de prompts con los logs, actualización del manual (RAG), gestión de modelos (costo, calidad, latencia) y observabilidad (Juez, precisión, presupuesto) | 8 h × USD 20 = USD 160 | **USD 400** | USD 240 (60 %): cubre el costo operativo, como pide la regla de la clase 10 |
+| **Success fee** (mensual) | **USD 0,30 por consulta resuelta sin intervención humana**, con tope de USD 300 por mes | 0 | 1.000 × 60 % × 0,30 = **USD 180** | Upside, no supervivencia |
+
+**Cuándo se cobra el success fee:** la consulta tiene `requires_human` = false, el Juez la dejó en ACEPTADO en `qa_juez_m8` y no se reabre ni se deriva en las 72 h siguientes. La evidencia es el `traceId` de cada caso (Dimensión 2): se factura con datos, sin discusión.
+
+**Lado del cliente (ProTable), escenario base: 1.000 consultas por mes, 60 % autónomas, 3 vueltas**
 
 | | Sin la solución | Con la solución |
 |---|---|---|
 | Personas | 2 personas (1.000 > 835) + guardia: **$4.052.750** | 1 orquestador + guardia: **$2.167.750** |
-| Infraestructura (la paga el cliente) | — | Tokens 1,83 + Whisper 2,70 + n8n 27 + ElevenLabs 22 = USD 53,53 → **$82.169** |
-| Proveedor | — | Fee USD 400 → **$614.000** |
-| **Total por mes** | **$4.052.750 (≈ USD 2.640)** | **$2.863.919 (≈ USD 1.866)** |
+| Infraestructura (la paga el cliente) | — | 3.000 ejecuciones: LLM 8,47 (tokens 5,77 + Whisper 2,70) + n8n Pro 67,50 (€60; Starter llega a 2.500) + ElevenLabs Creator 22 = USD 97,97 → **$150.384** |
+| Proveedor | — | Retainer USD 400 + success fee USD 180 → **$890.300** |
+| **Total por mes** | **$4.052.750 (≈ USD 2.640)** | **$3.208.434 (≈ USD 2.090)** |
 
-- **Ahorro neto del cliente: $1.188.831 por mes (≈ USD 774).** El setup ($1.842.000) se le paga en **≈ 1,6 meses**.
-- **Peor mes de infraestructura, con los topes de 1.6:** LLM capeado en USD 15 (OpenAI) + 5 (Groq) + n8n 27 + ElevenLabs 22 (el cupo del plan es el techo) = **USD 69**. El ahorro neto baja a ≈ USD 759: el riesgo de gasto está acotado.
-- **Cuándo es viable:** desde ≈ **835 consultas por mes (≈ 66 locales)**, cuando sin agentes habría que contratar a una segunda persona, hasta ≈ 1.030, el tope de un orquestador. **En el piloto (152 consultas) no se paga por ahorro:** una persona alcanza, y la solución le cuesta al cliente ≈ USD 434 más por mes (infraestructura + fee). A ese volumen se vende por la contención 24/7 del 40 % que llega fuera de horario, no por plata.
+- **Ahorro neto del cliente: $844.316 por mes (≈ USD 550).** El setup se le paga en **≈ 2,2 meses**.
+- **Peor mes:** el LLM llega al tope del nivel 1 (USD 20 en lugar de 8,47) y el success fee a su tope (USD 300): el cliente paga ≈ USD 2.222 y igual ahorra ≈ USD 418. **Los dos topes acotan el riesgo de gasto.**
 
-**Lado del proveedor**
+**Sensibilidad en tres escenarios** (clase 10: "un solo número de ROI es frágil"). Montos en USD por mes.
 
-| Concepto | Costo del proveedor | Precio | Margen |
-|---|---|---|---|
-| Setup: desarrollo e implementación | 40 h × USD 20 = USD 800 | USD 1.200 (una vez) | USD 400 (33 %) |
-| Soporte mensual: mantenimiento de prompts, recalibración y auditoría mensual del log | 8 h × USD 20 = USD 160 | USD 400 por mes | **USD 240 por mes (60 %)** |
+| Escenario | Consultas | Autonomía | Vueltas | Ejecuciones | LLM | Infraestructura | Personas sin / con | Costo sin | Costo con | **Ahorro del cliente** | **Margen del proveedor** |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Conservador | 900 | 40 % | 5 | 4.500 | 13,12 | 102,62 | 2 / 1 | 2.640 | 2.023 | **617** (setup en 1,9 meses) | **348** |
+| **Base** | 1.000 | 60 % | 3 | 3.000 | 8,47 | 97,97 | 2 / 1 | 2.640 | 2.090 | **550** (2,2 meses) | **420** |
+| Optimista (crecimiento) | 2.000 | 60 % | 2 | 4.000 | 11,12 | 100,62 | 3 / 2 | 3.868 | 3.501 | **367** (3,3 meses) | **600** |
+| Piloto actual | 152 | 40 % | 3 | 456 | 1,29 | 34,29 | 1 / 1 | 1.412 | 1.865 | **−453** | 258 |
 
-- El proveedor **no carga con costos variables**: la infraestructura va a las cuentas del cliente. Su riesgo es de horas, no de tokens.
-- **Por qué no cobrar por caso, como en el ejemplo de la clase (USD 2 por caso resuelto):** 600 casos autónomos (60 % de 1.000) × USD 2 = USD 1.200 por mes, más que todo el ahorro del cliente antes del fee (≈ USD 1.174). El caso manual en Argentina cuesta ≈ USD 1,47 (11,5 min × $11.781 la hora), no USD 2: **el precio por caso no le cierra al cliente.** Fee fijo + setup sí.
-- **Sensibilidad del ROI de 1.2.** Con la hora equivalente de mercado (≈ USD 7,7) en lugar de los USD 20 de la clase, el ahorro de horas de 1.2 no alcanza el punto de equilibrio (USD 9,4 por hora). El caso económico está en **evitar contrataciones al crecer el volumen**, no en ahorrar horas de una persona que ya está.
-- n8n se cobra en euros: con el euro billete del BNA ($1.765), los €24 son $42.360 contra $41.445 con el tipo de cambio de 1.4. No cambia la conclusión.
+- En los tres escenarios el cliente ahorra y el retainer cubre el costo del proveedor. El ahorro baja en el optimista porque el success fee crece con el volumen y hacen falta dos orquestadores: el ahorro se mide en **personas que no hay que contratar**, y va en escalones.
+- **En el piloto no se paga por ahorro:** una persona alcanza, y la solución cuesta ≈ USD 453 más por mes. A ese volumen se vende por la **contención 24/7** del 40 % que llega fuera de horario. Se vuelve viable desde ≈ 835 consultas por mes (≈ 66 locales), cuando sin agentes habría que sumar una segunda persona.
+- **Por qué no cobrar USD 2 por caso, como en el ejemplo de la clase 9:** 600 casos × USD 2 = USD 1.200 por mes, más que todo lo que el cliente ahorra antes de pagarle al proveedor (≈ USD 1.130). El caso manual en Argentina cuesta ≈ USD 1,47 (11,5 min × $11.781 la hora): **el precio por caso no le cierra al cliente**. Retainer + success fee chico, sí.
+- **Sensibilidad del ROI de 1.2:** con la hora equivalente de mercado (≈ USD 7,7) en lugar de los USD 20 de la clase, el ahorro de horas de 1.2 no alcanza el punto de equilibrio (USD 9,3 por hora). El caso económico está en la capacidad liberada, no en horas sueltas.
 
 ### 1.3 Capacidad de absorber picos
 
@@ -130,16 +143,16 @@ La estimación del M4 con qwen en el Router y en Tech Support daba ≈ USD 0,004
 | Tokens LLM (Router, worker y Juez) | OpenAI, por millón de tokens. Costo medido *(M8)* | N × 0,001835 | USD 0,28 | USD 1,83 | USD 5,50 |
 | Tokens LLM **con caché** de OpenAI (techo, *supuesto*; cuenta abajo) | `gpt-4o-mini`: entrada cacheada USD 0,075 por millón (la mitad de 0,15) | N × (0,001835 − 0,000154) | USD 0,26 | USD 1,68 | USD 5,04 |
 | n8n Cloud | Starter: 2.500 ejecuciones · Pro: 10.000. Solo cuenta la ejecución padre: **los sub-workflows no consumen cupo** | Plan que alcance a N | Starter €24 (mensual) / €20 (anual) | Starter €24 / €20 | Pro €60 / €50 |
-| Voz → texto (M6) | Whisper USD 0,006/min | N × 30 % × 3 turnos × 0,5 min × 0,006 | 68 min → USD 0,41 | 450 min → USD 2,70 | 1.350 min → USD 8,10 |
-| Texto → voz (M6) | ElevenLabs Multilingual: USD 0,08 cada 1.000 caracteres. Starter USD 6 (75.000 car.), Creator USD 22 (275.000), Pro USD 99 (1.238.000) | turnos × 200 car. → plan que alcance | USD 6 (27.360 car.) | USD 22 (180.000 car.) | USD 99 (540.000 car.) |
+| Voz → texto (M6) | Whisper USD 0,006/min | N × 30 % × 0,5 min × 0,006 (cada ejecución es una vuelta) | 23 min → USD 0,14 | 150 min → USD 0,90 | 450 min → USD 2,70 |
+| Texto → voz (M6) | ElevenLabs Multilingual: USD 0,08 cada 1.000 caracteres. Starter USD 6 (75.000 car.), Creator USD 22 (275.000), Pro USD 99 (1.238.000) | N × 30 % × 200 car. → plan que alcance | USD 6 (9.120 car.) | USD 6 (60.000 car.) | USD 22 (180.000 car.) |
 | RAG (M5) | LlamaCloud solo interviene en la **ingesta**: parsear el manual de 14 páginas cuesta 42 créditos por carga (Free: 10.000 créditos por mes). Las preguntas **no consultan LlamaCloud**: la búsqueda corre en n8n con embeddings de OpenAI `text-embedding-3-small` | 42 créditos × cargas del manual por mes | USD 0 (entra en Free) | USD 0 | USD 0 |
 | Gmail, Sheets, Slack, HubSpot | Planes gratuitos en uso | — | USD 0 | USD 0 | USD 0 |
-| **Total en USD (sin n8n)** | | | **USD 6,69** | **USD 26,53** | **USD 112,60** |
-| **Total en USD con caché (sin n8n)** | | Tokens con caché + voz | **USD 6,67** | **USD 26,38** | **USD 112,14** |
-| **Total con n8n** | | | USD 6,69 + €24 | USD 26,53 + €24 | USD 112,60 + €60 |
+| **Total en USD (sin n8n)** | | | **USD 6,42** | **USD 8,73** | **USD 30,20** |
+| **Total en USD con caché (sin n8n)** | | Tokens con caché + voz | **USD 6,40** | **USD 8,58** | **USD 29,74** |
+| **Total con n8n** | | | USD 6,42 + €24 | USD 8,73 + €24 | USD 30,20 + €60 |
 | Mantenimiento humano (prompts, revisión del log, recalibración mensual del puntaje de riesgo de baja) | horas por mes × USD 20 | 4 h *(supuesto)* × USD 20 | 4 h = USD 80 | 4 h = USD 80 | 4 h = USD 80 |
 
-Supuestos de la voz (*supuesto*): el 30 % de los casos llega por audio, con 3 turnos de 0,5 min y respuestas de 200 caracteres (el límite del M6). Telegram es la demo del M6; el canal real previsto es WhatsApp *(escenario)*. Si el piloto arranca sin voz, el total en USD baja a 0,28 + n8n. Para el ROI, los €24 de n8n se pasan a dólares con un **tipo de cambio supuesto de €1 = USD 1,125** (no es una cotización consultada: se redondea para el ejercicio), o sea 24 × 1,125 = USD 27: **TCO del piloto = 6,69 + 27 = USD 33,69 por mes**. El ROI usa el TCO sin caché. El mantenimiento no se suma al TCO: se descuenta en horas del ahorro (1.2), para no contarlo dos veces.
+Supuestos de la voz (*supuesto*): el 30 % de los mensajes llega por audio, de 0,5 min cada uno, con respuestas de 200 caracteres (el límite del M6). Cada ejecución es un mensaje: una consulta de 3 vueltas son 3 ejecuciones (1.2b); con 3 vueltas, el piloto serían 456 ejecuciones y ≈ USD 7,30 sin n8n. Telegram es la demo del M6; el canal real previsto es WhatsApp *(escenario)*. Si el piloto arranca sin voz, el total en USD baja a 0,28 + n8n. Para el ROI, los €24 de n8n se pasan a dólares con un **tipo de cambio supuesto de €1 = USD 1,125** (no es una cotización consultada: se redondea para el ejercicio), o sea 24 × 1,125 = USD 27: **TCO del piloto = 6,42 + 27 = USD 33,42 por mes**. El ROI usa el TCO sin caché. El mantenimiento no se suma al TCO: se descuenta en horas del ahorro (1.2), para no contarlo dos veces.
 
 **Prompt Caching de OpenAI sobre el stack real.** OpenAI cachea solo, sin configurar nada, los prefijos de 1.024 tokens o más (en tramos de 128, *a verificar*), y cobra la parte cacheada de `gpt-4o-mini` a USD 0,075 por millón en vez de 0,15. Hoy el `[CONTEXTO COMPARTIDO]` variable va al principio del prompt de cada worker, así que el prefijo cambia en cada caso. La propuesta es moverlo al final.
 
@@ -168,7 +181,7 @@ El caché de OpenAI se borra después de unos minutos sin uso (guía de Prompt C
 | **Ruteo por modelo según la tarea** | Vigente | Modelo económico para el resumen. **Decidido y medido:** qwen (Preview, era el 53 % del costo de tokens) salió; Router y workers usan `gpt-4o-mini`, y el A/B del M8 lo confirmó (5/5 contra 3/5 de Groq). El Juez usa `gpt-4.1-mini`, más caro por token (USD 0,40 / 1,60), pero con una sola llamada por intento |
 | **Topes de bucle** | Vigente | `maxIterations` = 5 en los workers, timeout de 60 s por worker, 2 reintentos con 2 s de espera, y como máximo 2 reintentos de autocorrección en el supervisor del M8 (columna `intento` = 0, 1, 2). Por encima de todo, n8n Cloud corta la ejecución a los 180 s |
 | **Tope de mensajes por conversación** | Propuesto | Como en el ejemplo de la clase 9 (corte en 10 preguntas): máximo 10 mensajes por sesión; al superarlo, el agente no llama al modelo, responde con un texto fijo y deriva a una persona. Se aplica con un IF sobre `contador_mensajes` de la memoria (Memoria_M3), antes del Router. Corta bucles entre bots y el abuso, que hoy solo frena el IF anti auto-reply |
-| **Presupuesto capeado con derivación humana** | Propuesto | Presupuesto mensual de LLM en producción con dos niveles: control en el flujo antes del Router (USD 10 a 1.000 consultas, aviso al 80 %) y tope duro del proveedor (USD 15). Al tocarlo, el caso va a derivación humana con respuesta de contención; no se corta el servicio ni se sigue gastando (1.6) |
+| **Presupuesto capeado con derivación humana** | Propuesto | Presupuesto mensual de LLM en producción con dos niveles: control en el flujo antes del Router (USD 20 a 1.000 consultas, aviso al 80 %) y tope duro del proveedor (USD 35). Al tocarlo, el caso va a derivación humana con respuesta de contención; no se corta el servicio ni se sigue gastando (1.6) |
 
 **Ejemplo del caché de Anthropic** (*supuesto*): el manual completo como bloque fijo del worker técnico, 2 llamadas por caso, 1.000 casos por mes y caché de 1 h renovado en 240 horas activas (8 h × 30 días).
 
@@ -185,23 +198,23 @@ No se verificó si el nodo *Anthropic Chat Model* de n8n expone `cache_control`.
 
 **Regla propuesta:** cada proveedor tiene una llave de **desarrollo** y otra de **producción**, en contenedores distintos (proyecto, workspace u organización). La de desarrollo lleva un tope duro de USD 5–10 por mes. En n8n se crean dos credenciales con nombre explícito (`OpenAI · DEV`, `OpenAI · PROD`, `Groq · DEV`, `Groq · PROD`). Los workflows de prueba y las copias por módulo (M2, M3, M4…) usan solo la DEV.
 
-**Tope de producción:** se fija con el costo proyectado a 3.000 ejecuciones por mes (la columna más alta de 1.4, unas 20 veces el piloto), redondeado al múltiplo de USD 5 de arriba. Así un bucle o un abuso corta antes de multiplicar el gasto, y el crecimiento normal no lo toca.
+**Tope de producción:** se fija con la regla del presupuesto capeado de abajo: gasto esperado del volumen contratado y peor caso con el tope de mensajes.
 
 **Presupuesto capeado en producción, con derivación humana (diseño propuesto).** Un tope de consola solo corta: el proveedor devuelve un error y el flujo se rompe. Sin un presupuesto capeado, el gasto ante un bucle o un abuso no tiene techo. Por eso el tope de producción tiene dos niveles, y **al llegar al tope el caso va a derivación humana**: no se corta el servicio ni se sigue gastando.
 
 | Nivel | Dónde | Tope a 1.000 consultas por mes | Qué pasa al tocarlo |
 |---|---|---|---|
-| **1. Presupuesto en el flujo** (control principal) | Nodo *Control de presupuesto* antes del Router: suma el costo del mes desde el log (tokens × precio de cada ejecución) | **USD 10 de LLM** (tokens + Whisper). Lo esperado es USD 4,53; con todos los casos en 2 reintentos del Juez, ≈ USD 7,30. Alcanza para ≈ 2.200 consultas | Al **80 %** (USD 8): aviso al orquestador en Slack. Al **100 %**: no se llama a ningún modelo; el cliente recibe la respuesta de contención y el caso va a derivación humana con su `traceId` |
-| **2. Tope duro del proveedor** (red de seguridad) | Consolas: proyecto "protable-prod" de OpenAI y organización de Groq (tabla de abajo) | **USD 15** (OpenAI) y USD 5 (Groq), por encima del nivel 1 para que el flujo derive antes de que el proveedor corte | Si igual corta (429 o 400), la **rama de error** de los nodos de modelo deriva a una persona: el cliente nunca ve un error |
+| **1. Presupuesto en el flujo** (control principal) | Nodo *Control de presupuesto* antes del Router: suma el costo del mes desde el log (tokens × precio de cada ejecución, más los minutos de audio) | **USD 20 de LLM** (tokens + Whisper). Esperado: USD 8,47 en el escenario base (3.000 ejecuciones) y USD 13,12 en el conservador (1.2b) | Al **80 %** (USD 16): aviso al orquestador en Slack. Al **100 %**: no se llama a ningún modelo; el cliente recibe la respuesta de contención y el caso va a derivación humana con su `traceId` |
+| **2. Tope duro del proveedor** (red de seguridad) | Consolas: proyecto "protable-prod" de OpenAI y organización de Groq (tabla de abajo) | **USD 35** (OpenAI): cubre el peor caso con el tope de mensajes, 1.000 consultas × 10 vueltas = USD 30,50. Groq: USD 5 | Si igual corta (429 o 400), la **rama de error** de los nodos de modelo deriva a una persona: el cliente nunca ve un error |
 
-Regla: el presupuesto del nivel 1 se fija en ≈ 2 veces el costo esperado del volumen contratado (mínimo USD 10), y el tope del nivel 2, ≈ 50 % por encima. Si el volumen contratado crece, se recalculan los dos. Lo paga el cliente (1.2b): el tope es lo que **le acota el riesgo de gasto**.
+Regla: el nivel 1 se fija en ≈ 2 veces el gasto esperado del volumen contratado, redondeado al múltiplo de USD 5 de arriba (mínimo USD 10); el nivel 2, en el peor caso que permite el tope de mensajes, también redondeado hacia arriba, para que el flujo derive antes de que el proveedor corte. Si el volumen contratado cambia, se recalculan los dos. Lo paga el cliente (1.2b): el presupuesto es lo que **le acota el riesgo de gasto**.
 
 | Proveedor | Contenedor para separar | Tope de gasto | Tipo de tope | Dev (plan) | Prod (plan) |
 |---|---|---|---|---|---|
-| **OpenAI** (producción: Router y workers con `gpt-4o-mini`, Juez con `gpt-4.1-mini`, embeddings del RAG y Whisper del M6) | **Proyecto** | Project settings → Limits → *Edit spend limit* → *Enforce a hard limit* | **Duro** si se activa: 429 `project_spend_limit_exceeded`. Sin activarlo es solo alerta. Puede pasarse un poco mientras se propaga | Proyecto "protable-dev", USD 10 | Proyecto "protable-prod", **USD 15**: tokens 5,50 + Whisper 8,10 = 13,60 → 15 |
+| **OpenAI** (producción: Router y workers con `gpt-4o-mini`, Juez con `gpt-4.1-mini`, embeddings del RAG y Whisper del M6) | **Proyecto** | Project settings → Limits → *Edit spend limit* → *Enforce a hard limit* | **Duro** si se activa: 429 `project_spend_limit_exceeded`. Sin activarlo es solo alerta. Puede pasarse un poco mientras se propaga | Proyecto "protable-dev", USD 10 | Proyecto "protable-prod", **USD 35**: nivel 2 del presupuesto capeado (peor caso con el tope de 10 vueltas, USD 30,50 → 35) |
 | **Groq** (resumen de memoria; la variante A del M8 quedó descartada) | **Organización**: el límite es por organización, no por llave ni por proyecto | Settings → Billing → Limits (plan pago y rol owner) | **Duro**: rechaza con 400 `blocked_api_access`. Se mide con 10–15 min de demora. Alertas aparte al 50/75/90 % | Organización "ProTable-DEV", USD 5 | Organización "ProTable-PROD", **USD 5**: resumen = 3.000 × 0,00004 = 0,12 → 5 (el mínimo de la regla) |
 | **Anthropic** (solo si se adopta el caché) | **Workspace**: las llaves quedan atadas a un workspace | Settings → Workspaces → *Spend limits* (no se puede en el Default Workspace) | Tope mensual por workspace con alertas por umbral | Workspace "Dev", USD 5 | Workspace "Production": no aplica hasta adoptar Claude; se fija con la misma regla |
-| **ElevenLabs** (M6) | Plan | Cupo de caracteres del plan | El cupo del plan actúa como techo (no se verificó si hay cobro por excedente) | Free (10.000 car.) | Starter (75.000 car.) en el piloto; Creator desde ≈ 417 casos por mes (75.000 ÷ 180 car. por caso) |
+| **ElevenLabs** (M6) | Plan | Cupo de caracteres del plan | El cupo del plan actúa como techo (no se verificó si hay cobro por excedente) | Free (10.000 car.) | Starter (75.000 car.) en el piloto; Creator desde ≈ 1.250 ejecuciones por mes (75.000 ÷ 60 car. por ejecución: 30 % × 200) |
 
 Hoy hay una sola llave por proveedor, sin topes de gasto registrados, y Groq está en la capa gratuita (su límite de gasto exige plan pago). **Configurar la separación y los topes es una acción del dueño de la cuenta en cada consola**: este documento no toca credenciales.
 
@@ -298,7 +311,7 @@ Las filas de ejemplo de este informe (como `pt-403-mv4nolag`) son de las corrida
 
 - **Contención 24/7:** fuera de horario el agente responde lo frecuente y, en lo demás, envía una **respuesta de contención segura** ("recibimos tu consulta, la está revisando una persona"), sin promesas ni datos. El caso queda a la espera del horario hábil, con aviso en Slack `#operaciones` y su `traceId`.
 - **Incidentes críticos en producción (P1):** no esperan. Se escalan a la **persona de guardia nocturna** (rol del orquestador, con guardia pasiva). La aprobación de un P1 vence a los **15 min**; el resto, a las **4 h hábiles** *(escenario)*. Si vence, no se ejecuta nada (falla cerrada).
-- **Cuándo se revisa:** al superar ≈ 1.030 consultas por mes (tope de un orquestador, 1.2b) o cuando entre una segunda persona, que pasa a ser suplente y comparte la guardia.
+- **Cuándo se revisa:** al superar ≈ 1.060 consultas por mes (tope de un orquestador, 1.2b) o cuando entre una segunda persona, que pasa a ser suplente y comparte la guardia.
 
 ### 3.2 Privacidad: qué configuración evita que los datos se usen para entrenar
 
