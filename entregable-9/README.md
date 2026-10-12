@@ -5,7 +5,7 @@
 
 | Archivo | Qué es |
 |---|---|
-| `PreEntrega_Modulo9_Acorsi_Bruno.pdf` | La entrega: KPIs, ROI, TCO con Prompt Caching y topes de gasto · trazabilidad con `trace_id` · riesgos éticos y privacidad del proveedor |
+| `PreEntrega_Modulo9_Acorsi_Bruno.pdf` | La entrega: KPIs, ROI por tarea, business case cliente/proveedor (setup + retainer + success fee, 3 escenarios), TCO con Prompt Caching y presupuesto de LLM capeado con derivación humana · trazabilidad con `trace_id` · riesgos éticos y privacidad del proveedor |
 | `informe-m9.md` | Fuente del informe |
 | `traceid-diseno.md` | Cómo se genera y viaja el `trace_id` (manager → worker → supervisor → `qa_juez_m8` → Slack) |
 | `fuentes-m9.md` | Fuentes de precios y políticas de los proveedores, con fecha de consulta |

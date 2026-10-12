@@ -67,6 +67,11 @@ Todas las consultas son del **11-10-2026**, salvo los precios de Anthropic, revi
 - Cargas sociales, aguinaldo y vacaciones: factor 1,45 sobre el bruto (*supuesto*, no consultado).
 - Tipo de cambio: Banco de la Nación Argentina, cotización billetes del 9/10/2026 (bna.com.ar/Personas): dólar compra $1.485 / venta $1.535; euro compra $1.655 / venta $1.765. Se usa la venta.
 
+## Material de clase usado en el business case (1.2b)
+
+- Clase 9 (8-oct-2026, transcripción de la clase): costo por consulta de ida y vuelta, resolución autónoma con derivación humana, costo manual por caso (USD 2 en el ejemplo), capacidad ≈ 60 consultas por día, TCO del proveedor y corte del flujo en 10 preguntas.
+- Clase 10, `Clase_Final_Modelos_Comerciales_IA_Agentica_n8n.pptx` del repo `Carolina053Peke/AI-Automation-Avanzado` (subido el 10-sep-2026): modelo híbrido setup + retainer + success fee, "el retainer debe cubrir tu costo operativo", sensibilidad en tres escenarios y "capacidad liberada" en lugar de despidos.
+
 ## Lo que no se pudo verificar
 
 - Precio mensual de n8n Cloud en la página oficial (solo aparece el anual). Se usó una fuente secundaria, marcada como tal.
