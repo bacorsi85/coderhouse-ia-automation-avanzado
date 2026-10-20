@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="es"><head><meta charset="utf-8"><title>PreEntrega_Modulo10_BrunoAcorsi</title>
+<style>
+@page { size: A4; margin: 15mm 15mm 14mm; }
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { font-family: "Segoe UI", Calibri, Arial, sans-serif; font-size: 9.3pt; line-height: 1.35; color: #1d232b; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.page { page-break-after: always; break-after: page; }
+.page:last-child { page-break-after: auto; break-after: auto; }
+.cover { background: #1f4e79; color: #fff; padding: 14px 18px; border-radius: 4px; margin-bottom: 10px; }
+.cover h1 { font-size: 20pt; margin: 0 0 4px; line-height: 1.15; }
+.cover .sub { font-size: 11pt; margin: 0 0 8px; color: #dbe7f3; }
+.cover .meta { font-size: 8.3pt; color: #c3d5e8; margin: 0; }
+h2 { font-size: 12.5pt; color: #fff; background: #1f4e79; margin: 0 0 8px; padding: 4px 9px; border-radius: 3px; }
+h3 { font-size: 10.5pt; color: #1f4e79; margin: 9px 0 3px; border-bottom: 1px solid #c9d6e3; padding-bottom: 2px; }
+p { margin: 3px 0 6px; }
+ul, ol { margin: 3px 0 6px; padding-left: 17px; }
+li { margin: 2px 0; }
+table { width: 100%; border-collapse: collapse; margin: 4px 0 7px; font-size: 8.5pt; }
+th, td { border: 1px solid #9fb0c2; padding: 3px 5px; vertical-align: top; text-align: left; }
+th { background: #e3ebf3; font-weight: 600; }
+td.n, th.n { text-align: right; white-space: nowrap; }
+.lead { font-size: 11.5pt; font-weight: 600; color: #1f4e79; margin: 4px 0 8px; }
+.note { background: #f3f6f9; border-left: 3px solid #1f4e79; padding: 5px 9px; margin: 5px 0 8px; }
+.sup { font-style: italic; color: #6a5800; }
+.kpis { display: flex; gap: 8px; margin: 6px 0 8px; }
+.kpi { flex: 1; border: 1.5px solid #1f4e79; border-radius: 4px; padding: 6px 8px; background: #fbfcfe; }
+.kpi b { display: block; font-size: 15pt; color: #1f4e79; line-height: 1.1; }
+.kpi span { font-size: 8pt; color: #4a5560; }
+.two { display: flex; gap: 12px; } .two > div { flex: 1; }
+.v { background: #d8f0d8; } .a { background: #fff3c4; } .r { background: #f8d4d4; } .g { background: #e8eef5; }
+.small { font-size: 7.8pt; color: #4a5560; }
+.obj { border: 1px solid #c9d6e3; border-radius: 4px; padding: 6px 10px; margin: 6px 0; }
+.obj .q { font-weight: 700; color: #8a1c1c; margin: 0 0 3px; }
+svg text { font-family: "Segoe UI", Calibri, Arial, sans-serif; }
+</style></head>
+<body>
+
+<!-- ================= PÁGINA 1 ================= -->
+<div class="page">
+  <div class="cover">
+    <h1>Soporte que no se duerme</h1>
+    <p class="sub">Una red de asistentes con supervisión humana para atender a los locales de ProTable en el momento en que el problema les cuesta plata: en pleno servicio.</p>
+    <p class="meta">Propuesta técnico-comercial · Pre-entrega del Módulo 10 · AI Automation Avanzado (Coderhouse), cohorte 2026 · Bruno Acorsi · octubre de 2026</p>
+  </div>
+
+  <h2>1 · Narrativa ejecutiva y arquitectura de valor</h2>
+  <h3>El problema</h3>
+  <p>ProTable vende pedidos y pagos por QR a restaurantes, bares y cafeterías. Su soporte no es una tarea de oficina: los problemas aparecen <b>un viernes a la noche</b>, cuando la cocina no recibe pedidos o un cobro no se acredita. Hoy:</p>
+  <ul>
+    <li><b>Atiende una sola persona</b>, de lunes a viernes de 9 a 18 h, leyendo canal por canal.</li>
+    <li><b>4 de cada 10 consultas llegan fuera de horario</b> y esperan unas <b>10 horas</b>, hasta la mañana siguiente. De día, la primera respuesta tarda unos 45 minutos.</li>
+    <li><b>6 de cada 10 consultas son repetidas</b> (planes, cómo funciona el QR, cómo se conecta Mercado Pago) y se responden a mano, una por una.</li>
+    <li><b>Nada queda registrado:</b> el seguimiento vive en el chat o en el hilo del mail. Nadie mide qué locales están en riesgo de irse, y los planes se cancelan cuando el cliente quiere.</li>
+  </ul>
+
+  <h3>La promesa</h3>
+  <p class="lead">Cada local recibe respuesta o contención en minutos, a toda hora. El equipo solo ve lo que necesita criterio humano, y ninguna decisión sobre dinero sale sin aprobación.</p>
+  <div class="kpis">
+    <div class="kpi"><b>&lt; 2 min</b><span>primera respuesta, día y noche (hoy: 45 min de día, 10 h de noche)</span></div>
+    <div class="kpi"><b>60 %</b><span>de las consultas resueltas sin intervención humana a los 3 meses (40 % al arranque)</span></div>
+    <div class="kpi"><b>0</b><span>respuestas sin respaldo en el manual oficial de soporte</span></div>
+    <div class="kpi"><b>2,2 meses</b><span>para recuperar la inversión inicial, con 1.000 consultas por mes</span></div>
+  </div>
+  <p class="small">Los datos de volumen y tiempos son un <span class="sup">escenario de trabajo</span> (piloto simulado, informes de los Módulos 7 y 9): ProTable todavía no tiene una medición previa. Los resultados de calidad salen de pruebas reales del sistema.</p>
+
+  <h3>Qué ya está probado</h3>
+  <ul>
+    <li>El sistema responde con la información del manual oficial y cita la sección. Si el dato no está, contesta <b>"No sé"</b> y pasa el caso a una persona: <b>5 de 5</b> preguntas de prueba respondidas correctamente, incluidas las formuladas con sinónimos.</li>
+    <li>El supervisor de calidad revisó cada respuesta antes de enviarla. En la comparación de dos configuraciones, la elegida resolvió <b>5 de 5</b> casos con nota 5 sobre 5.</li>
+    <li>Cuando se le hizo prometer un reembolso, el supervisor la <b>frenó</b> (nota 2 de 5), pidió aprobación en Slack y salió la versión que corrigió una persona.</li>
+    <li>El dueño de un local puede mandar un <b>audio</b> en pleno servicio y recibir la respuesta hablada.</li>
+  </ul>
+</div>
+
+<!-- ================= PÁGINA 2 ================= -->
+<div class="page">
+  <h3>Arquitectura de valor: cómo se organiza el equipo de asistentes</h3>
+  <p>El sistema funciona como un equipo de soporte con un coordinador, tres especialistas y un supervisor de calidad, más una persona responsable que interviene solo cuando hace falta. Es la estructura de coordinador y especialistas construida en el Módulo 2, que creció módulo a módulo.</p>
+
+  <svg viewBox="0 0 780 470" width="100%" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagrama de la arquitectura de valor">
+    <defs>
+      <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#1f4e79"/></marker>
+      <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#c62828"/></marker>
+      <marker id="arg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#2e7d32"/></marker>
+    </defs>
+    <!-- canales -->
+    <text x="10" y="18" font-size="11" font-weight="700" fill="#4a5560">CANALES DEL LOCAL</text>
+    <rect x="10" y="28" width="130" height="44" rx="6" fill="#e8eef5" stroke="#1f4e79"/><text x="75" y="47" font-size="11" text-anchor="middle" font-weight="600">Email de soporte</text><text x="75" y="62" font-size="9" text-anchor="middle" fill="#4a5560">queda como borrador</text>
+    <rect x="10" y="82" width="130" height="44" rx="6" fill="#e8eef5" stroke="#1f4e79"/><text x="75" y="101" font-size="11" text-anchor="middle" font-weight="600">Mensajería y audio</text><text x="75" y="116" font-size="8" text-anchor="middle" fill="#4a5560">hoy Telegram · luego WhatsApp</text>
+    <rect x="10" y="136" width="130" height="44" rx="6" fill="#e8eef5" stroke="#1f4e79"/><text x="75" y="155" font-size="11" text-anchor="middle" font-weight="600">Chat del panel</text><text x="75" y="170" font-size="9" text-anchor="middle" fill="#4a5560">Centro de Ayuda</text>
+    <!-- recepcion -->
+    <rect x="175" y="62" width="130" height="84" rx="6" fill="#fff" stroke="#1f4e79" stroke-width="1.5"/>
+    <text x="240" y="84" font-size="11.5" text-anchor="middle" font-weight="700" fill="#1f4e79">Recepción</text>
+    <text x="240" y="100" font-size="9" text-anchor="middle">acusa recibo al instante</text>
+    <text x="240" y="113" font-size="9" text-anchor="middle">filtra respuestas automáticas</text>
+    <text x="240" y="126" font-size="9" text-anchor="middle">pasa el audio a texto</text>
+    <text x="240" y="139" font-size="9" text-anchor="middle">asigna un código al caso</text>
+    <line x1="140" y1="50" x2="173" y2="90" stroke="#1f4e79" marker-end="url(#ar)"/>
+    <line x1="140" y1="104" x2="173" y2="104" stroke="#1f4e79" marker-end="url(#ar)"/>
+    <line x1="140" y1="158" x2="173" y2="120" stroke="#1f4e79" marker-end="url(#ar)"/>
+    <!-- coordinador -->
+    <rect x="340" y="62" width="140" height="84" rx="6" fill="#1f4e79"/>
+    <text x="410" y="88" font-size="12" text-anchor="middle" font-weight="700" fill="#fff">Coordinador</text>
+    <text x="410" y="105" font-size="9" text-anchor="middle" fill="#dbe7f3">entiende qué pide el local</text>
+    <text x="410" y="118" font-size="9" text-anchor="middle" fill="#dbe7f3">mide el riesgo del pedido</text>
+    <text x="410" y="131" font-size="9" text-anchor="middle" fill="#dbe7f3">elige al especialista</text>
+    <line x1="305" y1="104" x2="338" y2="104" stroke="#1f4e79" marker-end="url(#ar)"/>
+    <!-- especialistas -->
+    <text x="520" y="18" font-size="11" font-weight="700" fill="#4a5560">ESPECIALISTAS</text>
+    <rect x="520" y="28" width="150" height="44" rx="6" fill="#e3ebf3" stroke="#1f4e79"/><text x="595" y="47" font-size="11" text-anchor="middle" font-weight="600">Soporte técnico</text><text x="595" y="62" font-size="9" text-anchor="middle" fill="#4a5560">incidentes · registra tickets</text>
+    <rect x="520" y="82" width="150" height="44" rx="6" fill="#e3ebf3" stroke="#1f4e79"/><text x="595" y="101" font-size="11" text-anchor="middle" font-weight="600">Facturación</text><text x="595" y="116" font-size="9" text-anchor="middle" fill="#4a5560">cobros · nunca promete plata</text>
+    <rect x="520" y="136" width="150" height="44" rx="6" fill="#e3ebf3" stroke="#1f4e79"/><text x="595" y="155" font-size="11" text-anchor="middle" font-weight="600">Ventas y alta</text><text x="595" y="170" font-size="9" text-anchor="middle" fill="#4a5560">planes · prueba de 15 días</text>
+    <line x1="480" y1="90" x2="518" y2="52" stroke="#1f4e79" marker-end="url(#ar)"/>
+    <line x1="480" y1="104" x2="518" y2="104" stroke="#1f4e79" marker-end="url(#ar)"/>
+    <line x1="480" y1="118" x2="518" y2="156" stroke="#1f4e79" marker-end="url(#ar)"/>
+    <!-- herramientas -->
+    <line x1="595" y1="180" x2="595" y2="240" stroke="#b08900" stroke-dasharray="4 3"/>
+    <line x1="560" y1="180" x2="420" y2="240" stroke="#b08900" stroke-dasharray="4 3"/>
+    <line x1="530" y1="180" x2="110" y2="240" stroke="#b08900" stroke-dasharray="4 3"/>
+    <line x1="380" y1="146" x2="250" y2="240" stroke="#b08900" stroke-dasharray="4 3"/>
+    <text x="10" y="307" font-size="11" font-weight="700" fill="#4a5560">HERRAMIENTAS QUE CONSULTAN Y ACTUALIZAN</text>
+    <rect x="10" y="242" width="150" height="48" rx="6" fill="#fdf7e3" stroke="#b08900"/><text x="85" y="262" font-size="10.5" text-anchor="middle" font-weight="600">Manual oficial</text><text x="85" y="277" font-size="9" text-anchor="middle" fill="#4a5560">única fuente de respuestas</text>
+    <rect x="170" y="242" width="150" height="48" rx="6" fill="#fdf7e3" stroke="#b08900"/><text x="245" y="262" font-size="10.5" text-anchor="middle" font-weight="600">Memoria de cada local</text><text x="245" y="277" font-size="9" text-anchor="middle" fill="#4a5560">resumen de lo ya hablado</text>
+    <rect x="330" y="242" width="150" height="48" rx="6" fill="#fdf7e3" stroke="#b08900"/><text x="405" y="262" font-size="10.5" text-anchor="middle" font-weight="600">CRM (HubSpot)</text><text x="405" y="277" font-size="9" text-anchor="middle" fill="#4a5560">ficha y origen de cada caso</text>
+    <rect x="490" y="242" width="150" height="48" rx="6" fill="#fdf7e3" stroke="#b08900"/><text x="565" y="262" font-size="10.5" text-anchor="middle" font-weight="600">Registro de tickets</text><text x="565" y="277" font-size="9" text-anchor="middle" fill="#4a5560">incidentes con prioridad</text>
+    <!-- supervisor -->
+    <rect x="690" y="62" width="82" height="118" rx="6" fill="#fff" stroke="#6a1b9a" stroke-width="1.5"/>
+    <text x="731" y="84" font-size="10.5" text-anchor="middle" font-weight="700" fill="#6a1b9a">Supervisor</text>
+    <text x="731" y="97" font-size="10.5" text-anchor="middle" font-weight="700" fill="#6a1b9a">de calidad</text>
+    <text x="731" y="114" font-size="8.5" text-anchor="middle">pone nota 1 a 5</text>
+    <text x="731" y="126" font-size="8.5" text-anchor="middle">contra el manual</text>
+    <text x="731" y="140" font-size="8.5" text-anchor="middle">aprueba, pide</text>
+    <text x="731" y="152" font-size="8.5" text-anchor="middle">corregir o frena</text>
+    <line x1="670" y1="50" x2="688" y2="90" stroke="#1f4e79" marker-end="url(#ar)"/>
+    <line x1="670" y1="104" x2="688" y2="114" stroke="#1f4e79" marker-end="url(#ar)"/>
+    <line x1="670" y1="158" x2="688" y2="140" stroke="#1f4e79" marker-end="url(#ar)"/>
+    <!-- resultados -->
+    <rect x="560" y="330" width="212" height="58" rx="6" fill="#d8f0d8" stroke="#2e7d32"/>
+    <text x="666" y="352" font-size="11" text-anchor="middle" font-weight="700" fill="#2e7d32">Respuesta al local</text>
+    <text x="666" y="368" font-size="9" text-anchor="middle">por el mismo canal, con la fuente</text>
+    <text x="666" y="380" font-size="9" text-anchor="middle">y el caso registrado en el CRM</text>
+    <rect x="300" y="330" width="230" height="58" rx="6" fill="#f8d4d4" stroke="#c62828"/>
+    <text x="415" y="352" font-size="11" text-anchor="middle" font-weight="700" fill="#c62828">Responsable de soporte (Slack)</text>
+    <text x="415" y="368" font-size="9" text-anchor="middle">recibe el caso armado y decide con un clic:</text>
+    <text x="415" y="380" font-size="9" text-anchor="middle">Aprobar o Editar · urgencias de noche: guardia</text>
+    <path d="M731,180 L731,328" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arg)" fill="none"/>
+    <text x="737" y="250" font-size="9" fill="#2e7d32">aprobada</text>
+    <path d="M705,180 L705,310 L430,310 L430,328" stroke="#c62828" stroke-width="1.5" marker-end="url(#arr)" fill="none"/>
+    <text x="560" y="304" font-size="9" fill="#c62828">dudosa, plata o baja</text>
+    <path d="M530,359 L558,359" stroke="#2e7d32" stroke-width="1.5" marker-end="url(#arg)" fill="none"/>
+    <!-- control -->
+    <rect x="10" y="318" width="270" height="82" rx="6" fill="#f3f6f9" stroke="#9fb0c2"/>
+    <text x="20" y="337" font-size="10.5" font-weight="700" fill="#1f4e79">Control transversal</text>
+    <text x="20" y="353" font-size="9">• código de seguimiento en cada caso, de punta a punta</text>
+    <text x="20" y="367" font-size="9">• presupuesto mensual con tope: al llegar, pasa a persona</text>
+    <text x="20" y="381" font-size="9">• ningún asistente puede borrar datos ni mover dinero</text>
+    <text x="20" y="395" font-size="9">• tablero con la nota de cada respuesta</text>
+    <text x="10" y="430" font-size="9.5" fill="#4a5560">Flechas azules: el caso avanza · líneas punteadas: el especialista consulta o actualiza una herramienta ·</text>
+    <text x="10" y="445" font-size="9.5" fill="#4a5560">verde: sale al local · rojo: espera la decisión de una persona. La respuesta al local nunca muestra el código interno.</text>
+  </svg>
+
+  <h3>Cómo interactúan los componentes</h3>
+  <ol>
+    <li><b>Recepción</b> acusa recibo enseguida, descarta los mensajes automáticos (por ejemplo, "fuera de la oficina") y le pone un código de seguimiento a cada caso.</li>
+    <li>El <b>Coordinador</b> lee el pedido junto con la memoria del local, decide si es técnico, de facturación o comercial, y mide el riesgo según <b>lo que el local pide que se haga</b>, no según el tema. Si el pedido toca plata o una baja, el caso va directo a una persona.</li>
+    <li>El <b>especialista</b> responde consultando solo el manual oficial y, según su rol, registra el ticket o actualiza el CRM.</li>
+    <li>El <b>Supervisor de calidad</b> compara la respuesta con el manual y le pone una nota. Si la nota es 4 o más, sale. Si es más baja, la devuelve a corregir (hasta 2 veces) o la frena.</li>
+    <li>Lo frenado llega a la <b>persona responsable</b> en Slack, con el caso resumido y una respuesta propuesta. Si nadie decide a tiempo, no sale nada: el local recibe un aviso de que una persona lo está revisando.</li>
+  </ol>
+</div>
+
+<!-- ================= PÁGINA 3 ================= -->
+<div class="page">
+  <h3>De la función al beneficio</h3>
+  <table>
+    <tr><th style="width:33%">Lo que hace el sistema</th><th>Lo que gana el negocio</th></tr>
+    <tr><td>Coordinador que clasifica y asigna cada consulta</td><td>Cada caso llega al especialista correcto en segundos. Nadie reenvía mails ni decide a mano quién atiende.</td></tr>
+    <tr><td>Especialistas separados, cada uno con sus reglas</td><td>Facturación nunca promete devoluciones. Ventas solo menciona los planes vigentes. Soporte prioriza lo que frena el servicio.</td></tr>
+    <tr><td>Respuestas basadas solo en el manual oficial, con la sección citada</td><td>Información verificada al instante y sin inventos. Si algo no está documentado, lo dice y pasa a una persona.</td></tr>
+    <tr><td>Memoria de cada local</td><td>El dueño no repite su historia. El seguimiento no depende de que alguien se acuerde.</td></tr>
+    <tr><td>Supervisor de calidad automático</td><td>Un control antes de que cualquier respuesta llegue al cliente: corrige o frena lo dudoso sin intervención manual.</td></tr>
+    <tr><td>Aprobación humana con un clic en Slack</td><td>Las decisiones sensibles llegan resumidas y con una propuesta. La persona decide en segundos, no investiga desde cero.</td></tr>
+    <tr><td>Atención por audio</td><td>El dueño, con las manos ocupadas en pleno servicio, manda un audio y recibe la respuesta hablada.</td></tr>
+    <tr><td>Código de seguimiento en cada caso</td><td>Auditoría completa: cada respuesta se rastrea hasta su origen. Es también la base para facturar sin discusiones.</td></tr>
+    <tr><td>CRM actualizado de forma automática</td><td>Historial comercial de cada local sin carga manual. Base para detectar a tiempo a los locales en riesgo de irse.</td></tr>
+    <tr><td>Presupuesto mensual con tope</td><td>El costo nunca se dispara: al llegar al tope, los casos pasan a una persona en lugar de seguir gastando.</td></tr>
+  </table>
+
+  <h3>Business case (el del Módulo 9, sin recalcular)</h3>
+  <p><b>Punto de partida (baseline del proceso manual):</b> una consulta frecuente lleva 5 minutos, un incidente en servicio 25 y un reclamo de cobro 15. Con la mezcla habitual, el promedio es de <b>11,5 minutos por consulta</b>, lo que equivale a <b>≈ USD 1,47 por caso</b> a valor de mercado. Una persona dedicada atiende como máximo <b>≈ 835 consultas por mes</b>. El costo de una persona de soporte es de <b>$1.885.000 por mes</b> (sueldo de mercado con cargas) y la guardia nocturna para urgencias, de $282.750. <span class="sup">(Escenario de trabajo; dólar billete del Banco Nación a $1.535, 9-oct-2026.)</span></p>
+  <table>
+    <tr><th>Con 1.000 consultas por mes (escenario base)</th><th class="n">Sin la solución</th><th class="n">Con la solución</th></tr>
+    <tr><td>Personas de soporte</td><td class="n">2 personas + guardia</td><td class="n">1 responsable + guardia</td></tr>
+    <tr><td>Costo de personas</td><td class="n">USD 2.640</td><td class="n">USD 1.412</td></tr>
+    <tr><td>Infraestructura de la solución (la paga ProTable, con tope)</td><td class="n">—</td><td class="n">USD 98</td></tr>
+    <tr><td>Retainer y success fee del proveedor</td><td class="n">—</td><td class="n">USD 580</td></tr>
+    <tr><th>Total por mes</th><th class="n">USD 2.640</th><th class="n">USD 2.090</th></tr>
+  </table>
+  <div class="kpis">
+    <div class="kpi"><b>USD 550</b><span>de ahorro neto por mes</span></div>
+    <div class="kpi"><b>2,2 meses</b><span>de payback: USD 1.200 de inversión inicial ÷ USD 550 por mes</span></div>
+    <div class="kpi"><b>USD 5.400</b><span>de beneficio neto el primer año (12 × 550 − 1.200)</span></div>
+    <div class="kpi"><b>USD 418</b><span>de ahorro aun en el peor mes, con el gasto y el success fee en su tope</span></div>
+  </div>
+  <table>
+    <tr><th>Escenario</th><th class="n">Consultas por mes</th><th class="n">Resueltas sin persona</th><th class="n">Ahorro por mes</th><th class="n">Payback</th></tr>
+    <tr><td>Conservador</td><td class="n">900</td><td class="n">40 %</td><td class="n">USD 617</td><td class="n">1,9 meses</td></tr>
+    <tr><td><b>Base</b></td><td class="n">1.000</td><td class="n">60 %</td><td class="n"><b>USD 550</b></td><td class="n"><b>2,2 meses</b></td></tr>
+    <tr><td>Crecimiento</td><td class="n">2.000</td><td class="n">60 %</td><td class="n">USD 367</td><td class="n">3,3 meses</td></tr>
+    <tr><td>Piloto de hoy</td><td class="n">152</td><td class="n">40 %</td><td class="n">−USD 453</td><td class="n">no aplica</td></tr>
+  </table>
+  <p><b>Lectura para el comité.</b> No se vende como reducción de personal, sino como <b>capacidad liberada para absorber demanda</b>: con la solución, una sola persona sostiene ≈ 1.060 consultas por mes en lugar de 835. Con el volumen actual del piloto, el ahorro no paga la solución: lo que se compra es la <b>atención las 24 horas</b>. El ahorro aparece desde ≈ 835 consultas por mes (≈ 66 locales), justo cuando sin la solución habría que contratar a una segunda persona.</p>
+</div>
+
+<!-- ================= PÁGINA 4 ================= -->
+<div class="page">
+  <h2>2 · Roadmap de despliegue por horizontes</h2>
+  <p>La autonomía se gana por etapas. Cada fase amplía lo que el sistema puede hacer solo, y solo se pasa a la siguiente cuando se demuestra con números que la anterior funciona. La frontera la define el semáforo del Módulo 7: <span class="v">&nbsp;verde&nbsp;</span> responde solo · <span class="a">&nbsp;amarillo&nbsp;</span> responde y avisa · <span class="r">&nbsp;rojo&nbsp;</span> se congela y decide una persona.</p>
+  <table>
+    <tr><th style="width:15%">Fase y horizonte</th><th style="width:24%">Qué puede hacer</th><th style="width:22%">Qué tiene prohibido</th><th style="width:15%">Quién valida</th><th>Criterio para pasar a la siguiente</th></tr>
+    <tr class="g"><td><b>Fase 0 · Modo sombra</b><br>semanas 2 y 3</td><td>Lee las consultas reales y propone una respuesta en Slack. El supervisor de calidad pone nota a cada propuesta.</td><td>Responderle al local. Escribir en el CRM o registrar tickets.</td><td>Responsable de soporte, que compara con lo que respondió a mano</td><td>≥ 50 casos revisados · clasificación correcta en ≥ 90 % · nota ≥ 4 en ≥ 90 % · <b>0 datos inventados</b></td></tr>
+    <tr class="v"><td><b>Fase 1 · Piloto de solo lectura</b><br>semana 4 al mes 2</td><td>Responde solo las <b>consultas frecuentes</b> con el manual, si la confianza es alta y la nota del supervisor es ≥ 4. Lo demás pasa a una persona con el caso armado.</td><td>Escribir en el CRM, registrar tickets, tocar temas de dinero, bajas o incidentes.</td><td>Responsable de soporte, con una muestra diaria de 10 casos</td><td>4 semanas sin incidentes · ≥ 30 % de consultas resueltas sin persona · 0 respuestas sin respaldo · gasto dentro del presupuesto</td></tr>
+    <tr class="a"><td><b>Fase 2 · Escritura controlada con aprobación humana</b><br>meses 2 y 3</td><td>Registra tickets, actualiza el CRM y deja borradores de email. Responde incidentes con el próximo paso y avisa. Lo sensible queda congelado hasta que alguien aprueba en Slack.</td><td>Mover dinero, prometer reembolsos o descuentos, dar de baja, borrar datos. Enviar emails sin un clic humano.</td><td>Responsable de soporte en Slack; el consultor revisa el registro cada semana</td><td>Escalados innecesarios &lt; 20 % · clasificación correcta ≥ 90 % en la muestra semanal · 0 errores de datos en el CRM · bajas anticipadas en seguimiento</td></tr>
+    <tr class="v"><td><b>Fase 3 · Autonomía supervisada</b><br>desde el mes 4</td><td>Opera solo en verde y amarillo, con el supervisor de calidad en cada respuesta. El rojo sigue esperando a una persona.</td><td>Salir de las políticas: dinero, bajas, temas legales y seguridad siempre pasan por una persona.</td><td>Supervisor de calidad en cada caso + muestra semanal de 20 casos + auditoría mensual del consultor</td><td><b>Se retrocede a Fase 2</b> si la precisión cae por debajo de 90 % o aparece un dato inventado</td></tr>
+  </table>
+
+  <h3>Qué riesgo mitiga cada fase</h3>
+  <ul>
+    <li><b>Fase 0:</b> que el sistema "suene bien" pero se equivoque. Se mide contra las respuestas reales del equipo, sin que ningún local lo vea.</li>
+    <li><b>Fase 1:</b> que una respuesta incorrecta dañe la relación. Solo se automatiza lo repetitivo y de bajo riesgo, y nada queda escrito en los sistemas.</li>
+    <li><b>Fase 2:</b> que un error se propague a los datos comerciales. Todo lo que se escribe queda registrado con su código de seguimiento, y lo sensible pasa antes por una persona.</li>
+    <li><b>Fase 3:</b> que la calidad se degrade con el tiempo. La medición es continua y la vuelta atrás está definida de antemano.</li>
+  </ul>
+
+  <h3>Fallback: qué pasa cuando algo falla</h3>
+  <table>
+    <tr><th style="width:28%">Situación</th><th>Respuesta del sistema</th></tr>
+    <tr><td>El servicio de inteligencia artificial tarda o no responde</td><td>Reintenta 2 veces. Si sigue fallando, el local recibe un aviso neutro ("recibimos tu consulta, la está revisando una persona") y el caso llega a Slack con su código. Nunca queda una consulta sin acuse.</td></tr>
+    <tr><td>El supervisor de calidad falla o devuelve algo inválido</td><td>La respuesta no sale: decide una persona. Ante la duda, el sistema se frena en lugar de avanzar.</td></tr>
+    <tr><td>Nadie aprueba a tiempo</td><td>No se ejecuta nada. Las urgencias críticas vencen a los 15 minutos y van a la guardia; el resto, a las 4 horas hábiles.</td></tr>
+    <tr><td>Se llega al presupuesto mensual</td><td>Aviso al 80 %. Al 100 %, los casos pasan a una persona: el servicio no se corta y el gasto no sigue.</td></tr>
+    <tr><td>Una conversación se extiende o entra en un bucle</td><td>Tope de 10 mensajes por conversación. Al superarlo, pasa a una persona.</td></tr>
+  </table>
+</div>
+
+<!-- ================= PÁGINA 5 ================= -->
+<div class="page">
+  <h2>3 · Modelo comercial e incentivos</h2>
+  <p>Precio <b>híbrido</b>: cubre el trabajo inicial, paga el cuidado continuo del sistema y comparte el resultado. ProTable paga directamente la infraestructura (plataforma, servicios de inteligencia artificial y voz) en sus propias cuentas, con un presupuesto con tope (≈ USD 98 por mes con 1.000 consultas).</p>
+  <table>
+    <tr><th style="width:18%">Componente</th><th class="n" style="width:15%">Precio</th><th>Qué cubre</th></tr>
+    <tr><td><b>Fee de configuración inicial</b></td><td class="n">USD 1.200<br><span class="small">una sola vez</span></td><td>Relevamiento del proceso y del manual, diseño de las reglas de cada especialista, implementación, carga del manual oficial, conexión con el CRM, Slack y los canales, pruebas con casos reales, documentación y acompañamiento de las Fases 0 y 1.</td></tr>
+    <tr><td><b>Retainer mensual de soporte</b></td><td class="n">USD 400<br><span class="small">por mes, desde la Fase 1</span></td><td>Ajuste de las respuestas a partir de los registros · actualización del manual cuando cambian precios, funciones o procesos · gestión de los servicios de inteligencia artificial (probar alternativas que bajen costo o mejoren calidad) · revisión mensual de métricas, del supervisor de calidad y del presupuesto · atención ante fallas.</td></tr>
+    <tr><td><b>Success fee</b></td><td class="n">USD 0,30<br><span class="small">por consulta resuelta, con tope de USD 300 por mes</span></td><td>Solo se cobra por resultado verificable. Con 1.000 consultas y 60 % resueltas, son USD 180 por mes. Se factura desde la Fase 1.</td></tr>
+  </table>
+  <div class="note"><b>Por qué este reparto.</b> El retainer cubre el costo de mantener el sistema (≈ 8 horas de trabajo por mes), así que la continuidad no depende de los resultados. El success fee es el incentivo para que el sistema resuelva cada vez más, sin cargar ese riesgo en el cliente. Cobrar solo por caso (USD 2, como en el ejemplo de la clase 9) no le cierra a ProTable: superaría todo lo que ahorra. Cobrar por hora penalizaría la eficiencia.</div>
+
+  <h3>KPI de facturación: consulta resuelta sin intervención humana</h3>
+  <p>Una consulta cuenta para el success fee si se cumplen las cuatro condiciones:</p>
+  <ol>
+    <li>La respondió el sistema, sin que nadie la aprobara, editara ni retomara.</li>
+    <li>El supervisor de calidad la aprobó con nota ≥ 4.</li>
+    <li>Quedó registrada en el CRM con origen "Asistente" y su código de seguimiento.</li>
+    <li><b>Venció la ventana de conversión sin reclamo</b> (ver abajo).</li>
+  </ol>
+  <p>Es <b>atribuible</b>, porque el código de seguimiento identifica cada caso de punta a punta, y <b>auditable</b>, porque cualquiera de las partes puede abrir el registro del supervisor y la ficha del CRM.</p>
+
+  <h3>Ventana de conversión: 3 días</h3>
+  <p>La resolución se atribuye al sistema si, durante los <b>3 días corridos</b> posteriores a su última respuesta, el local <b>no vuelve a consultar por el mismo tema</b> ni pide hablar con una persona. Si lo hace dentro de la ventana, la consulta no se factura y vuelve a la cola de revisión. Tres días cubren el próximo servicio del local (fin de semana incluido) sin demorar la facturación del mes: las consultas de los últimos 3 días se facturan en el período siguiente.</p>
+
+  <h3>Alcance del retainer: qué incluye y qué no</h3>
+  <div class="two">
+    <div>
+      <p><b>Incluye</b></p>
+      <ul>
+        <li>Ajuste de instrucciones y reglas a partir de los errores detectados.</li>
+        <li>Actualización del manual oficial (hasta 2 cambios por mes).</li>
+        <li>Gestión de modelos: evaluar alternativas más baratas o mejores y aplicar el cambio con prueba previa.</li>
+        <li>Revisión mensual de métricas: resolución, calidad, escalados, presupuesto.</li>
+        <li>Recalibración mensual del puntaje de riesgo de baja.</li>
+        <li>Atención de fallas del sistema en horario hábil.</li>
+      </ul>
+    </div>
+    <div>
+      <p><b>No incluye</b> (se cotiza aparte)</p>
+      <ul>
+        <li>Canales nuevos (por ejemplo, el paso a WhatsApp).</li>
+        <li>Especialistas nuevos o integraciones con otros sistemas.</li>
+        <li>La atención de los casos derivados: la hace el equipo de ProTable.</li>
+        <li>El costo de la infraestructura, que paga ProTable con tope.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<!-- ================= PÁGINA 6 ================= -->
+<div class="page">
+  <h2>4 · Plan de implementación y control de metadatos</h2>
+  <h3>Hitos a 30 días</h3>
+  <p class="small">Fechas objetivo con inicio el lunes 26 de octubre de 2026 (supuesto). Roles: <b>Consultor de IA</b> (proveedor) · <b>Dirección de ProTable</b> (sponsor, aprueba fases) · <b>Responsable de soporte</b> (ProTable, valida respuestas y aprueba en Slack) · <b>Responsable de sistemas y CRM</b> (ProTable, accesos y HubSpot).</p>
+  <table>
+    <tr><th style="width:5%">#</th><th style="width:13%">Fecha objetivo</th><th>Hito y entregable</th><th style="width:22%">Responsable</th></tr>
+    <tr><td>1</td><td>lun 26-oct</td><td><b>Arranque:</b> alcance firmado, KPIs y baseline confirmados, roles asignados.</td><td>Dirección de ProTable + Consultor de IA</td></tr>
+    <tr><td>2</td><td>mié 28-oct</td><td><b>Accesos y presupuesto:</b> cuentas a nombre de ProTable, llaves separadas de prueba y de producción, topes de gasto configurados.</td><td>Responsable de sistemas y CRM</td></tr>
+    <tr><td>3</td><td>lun 2-nov</td><td><b>Manual cargado y validado:</b> versión vigente del manual de soporte; 20 preguntas de control respondidas sin errores.</td><td>Consultor de IA (carga) · Responsable de soporte (valida)</td></tr>
+    <tr><td>4</td><td>mié 4-nov</td><td><b>CRM y trazabilidad:</b> propiedades de origen creadas en HubSpot, tablero de casos y reporte de facturación de prueba.</td><td>Responsable de sistemas y CRM</td></tr>
+    <tr><td>5</td><td>jue 5-nov</td><td><b>Inicio de la Fase 0 (modo sombra)</b> y canal de aprobación en Slack activo.</td><td>Consultor de IA</td></tr>
+    <tr><td>6</td><td>lun 16-nov</td><td><b>Revisión de la Fase 0:</b> ≥ 50 casos comparados, informe de precisión y ajustes aplicados.</td><td>Responsable de soporte + Consultor de IA</td></tr>
+    <tr><td>7</td><td>mar 17-nov</td><td><b>Comité de pase a la Fase 1</b>, con los criterios de salida de la página 4.</td><td>Dirección de ProTable</td></tr>
+    <tr><td>8</td><td>mié 18-nov</td><td><b>Inicio de la Fase 1:</b> respuestas automáticas solo a consultas frecuentes; empiezan el retainer y el success fee.</td><td>Responsable de soporte</td></tr>
+    <tr><td>9</td><td>mar 24-nov</td><td><b>Informe de los 30 días:</b> métricas contra el baseline, gasto contra presupuesto y plan de la Fase 2.</td><td>Consultor de IA (presenta) · Dirección de ProTable (decide)</td></tr>
+  </table>
+
+  <h3>Trazabilidad: el CRM como única fuente de verdad</h3>
+  <p>Cada intervención del sistema queda como una <b>actividad en la ficha del local en HubSpot</b>, marcada con su origen. El success fee del mes es el resultado de un único reporte sobre esas actividades. Ambas partes ven el mismo reporte, así que no hay lugar para disputas de atribución.</p>
+  <table>
+    <tr><th style="width:26%">Dato que se registra</th><th>Para qué sirve</th></tr>
+    <tr><td><b>Origen</b> = Asistente / Persona / Mixto</td><td>Distingue lo que resolvió el sistema de lo que resolvió el equipo.</td></tr>
+    <tr><td><b>Código de seguimiento</b> del caso</td><td>Une la ficha del CRM con el registro del supervisor y con el historial técnico. Es la misma clave en todos lados.</td></tr>
+    <tr><td><b>Fecha y hora</b> de la última respuesta del sistema</td><td>Marca el inicio de la ventana de conversión de 3 días.</td></tr>
+    <tr><td><b>Especialista</b> y <b>versión de las instrucciones</b></td><td>Permite auditar qué regla estaba vigente cuando se respondió.</td></tr>
+    <tr><td><b>Nota del supervisor</b> (1 a 5) y su veredicto</td><td>Prueba la calidad de lo que se factura.</td></tr>
+    <tr><td><b>Resultado</b> = resuelto por el sistema / aprobado / editado / derivado</td><td>Solo "resuelto por el sistema" puede ser facturable.</td></tr>
+    <tr><td><b>Responsable humano</b>, si intervino</td><td>Excluye el caso del success fee y deja registro de quién decidió.</td></tr>
+    <tr><td><b>Facturable</b> = sí / no, con la fecha de cierre de la ventana</td><td>Se completa solo al vencer los 3 días. El reporte mensual suma solo los "sí".</td></tr>
+  </table>
+  <p class="small">El código de seguimiento ya existe y viaja por todo el sistema (Módulos 8 y 9). Las propiedades de HubSpot se crean en el hito 4.</p>
+</div>
+
+<!-- ================= PÁGINA 7 ================= -->
+<div class="page">
+  <h3>Defensa ante el comité: tres objeciones anticipadas</h3>
+  <div class="obj">
+    <p class="q">"Esto ya lo hace mi CRM."</p>
+    <p>El CRM <b>registra</b>, no <b>atiende</b>. No lee el mensaje que un local manda un sábado a las 23 h, no busca la respuesta en el manual, no distingue una urgencia de una consulta de rutina y no le avisa a nadie. El sistema opera sobre el proceso: responde, prioriza, deriva y escala, y <b>deja todo registrado en el mismo CRM</b>, que sigue siendo la fuente de verdad. No lo reemplaza: lo alimenta. Hoy el seguimiento no queda en ningún lado; con la solución, cada caso queda en la ficha del local.</p>
+  </div>
+  <div class="obj">
+    <p class="q">"¿Y si el agente alucina y borra datos?"</p>
+    <p><b>No puede borrar:</b> ningún asistente tiene ese permiso, y tampoco puede mover dinero ni enviar emails sin un clic humano. <b>No puede inventar sin que se note:</b> responde solo con el manual oficial, cita la sección y, si el dato no está, dice "No sé" y deriva. <b>Cada respuesta pasa por un supervisor</b> antes de salir: en las pruebas, una respuesta con un reembolso prometido sacó 2 sobre 5, se frenó y salió la versión que corrigió una persona. <b>La autonomía se gana por fases:</b> durante las primeras semanas el sistema solo sugiere, y escribe en el CRM recién en la Fase 2, con aprobación. Ante cualquier falla, el sistema se frena en lugar de avanzar.</p>
+  </div>
+  <div class="obj">
+    <p class="q">"Es caro para el ahorro que genera."</p>
+    <p>Con 1.000 consultas por mes, la solución cuesta <b>USD 2.090 por mes</b> contra <b>USD 2.640</b> de hacerlo con personas: <b>USD 550 de ahorro mensual</b>, la inversión inicial se recupera en <b>2,2 meses</b> y el primer año deja <b>USD 5.400</b> netos. Aun en el peor mes, con el gasto y el success fee al tope, ahorra USD 418. El gasto tiene techo: hay un presupuesto con tope que, al alcanzarse, deriva a una persona en lugar de seguir gastando. Y con honestidad: con el volumen de hoy (152 consultas por mes) no se paga por ahorro, sino por atender las 24 horas al 40 % de las consultas que hoy esperan hasta el día siguiente. El ahorro aparece cuando ProTable crece, justo en el momento en que sin la solución habría que contratar a la segunda persona.</p>
+  </div>
+
+  <h3>Lo que se le pide al comité</h3>
+  <ol>
+    <li>Aprobar el <b>fee de configuración (USD 1.200)</b> y el inicio del plan de 30 días.</li>
+    <li>Designar a los <b>responsables por rol</b> de la página 6.</li>
+    <li>Aprobar el <b>presupuesto mensual con tope</b> de la infraestructura.</li>
+    <li>Agendar el <b>comité de pase a la Fase 1</b> para el 17 de noviembre.</li>
+  </ol>
+
+  <div class="note"><b>Checklist de la entrega.</b> Se entiende sin conocer la herramienta de automatización · el diagrama muestra coordinador, especialistas y herramientas, no una captura del editor · el ROI se calcula contra un baseline explícito (11,5 min y USD 1,47 por caso; personas a sueldo de mercado) · las cuatro fases dicen qué puede y qué no puede hacer el sistema · el pricing tiene sus tres componentes y la ventana está definida en días (3) · cada hito tiene un responsable con nombre de rol.</div>
+  <p class="small">Fuentes: arquitectura de los Módulos 2 a 8; semáforo de autonomía y escenario del Módulo 7; baseline, ROI, TCO y precios del Módulo 9 (repositorio <code>bacorsi85/coderhouse-ia-automation-avanzado</code>, carpetas <code>entregable-7</code> y <code>entregable-9</code>); modelo comercial y fases de la clase 10.</p>
+</div>
+
+</body></html>
