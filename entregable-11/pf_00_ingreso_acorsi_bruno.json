@@ -1,0 +1,629 @@
+{
+  "name": "pf_00_ingreso_acorsi_bruno",
+  "nodes": [
+    {
+      "id": "a469a4f1-3e62-4a36-8c40-4f93f12b4539",
+      "name": "Webhook · Consulta de soporte",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "protable-soporte",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "webhookId": "a6329faf-1f46-4603-adf0-30c0aaa2f0b4"
+    },
+    {
+      "id": "3fd628ad-5a04-4ac3-be42-c4a7901e5e65",
+      "name": "Normalizar y validar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nconst req = $input.first().json;\nconst b = req.body || {};\nconst h = req.headers || {};\nconst s = (v) => String(v ?? '').trim();\nconst email = s(b.email).toLowerCase();\nconst mensaje = s(b.mensaje);\nconst asunto = s(b.asunto) || '(sin asunto)';\nconst nombre = s(b.nombre);\nconst canal = s(b.canal) || 'web';\n// Inyección de falla controlada para auditar al supervisor (solo el valor RECHAZAR tiene efecto).\nconst modo_prueba = s(b.modo_prueba).toUpperCase() === 'RECHAZAR' ? 'RECHAZAR' : 'NORMAL';\nconst clave = s(h['idempotency-key'] || b.request_id);\nlet motivo = '';\nif (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) motivo = 'email inválido';\nelse if (mensaje.length < 3) motivo = 'mensaje vacío';\nelse if (mensaje.length > 4000) motivo = 'mensaje demasiado largo (máximo 4000 caracteres)';\n// Clave de idempotencia: la del emisor si la manda; si no, el contenido normalizado.\nconst semilla_idem = clave ? 'key:' + clave\n  : [email, asunto.toLowerCase(), mensaje.toLowerCase().replace(/\\s+/g, ' ')].join('|');\nreturn [{ json: { email, nombre, asunto, mensaje, canal, modo_prueba, valido: !motivo, motivo, semilla_idem } }];\n"
+      }
+    },
+    {
+      "id": "c90b1e8d-3104-42f6-bc32-719f3835c364",
+      "name": "¿Solicitud válida?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.valido }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "435d691e-1d6d-4676-9cad-1c0dd37cf429",
+      "name": "Responder 400 · rechazada",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        660,
+        200
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ estado: 'rechazado', motivo: $json.motivo }) }}",
+        "options": {
+          "responseCode": 400
+        }
+      }
+    },
+    {
+      "id": "ffa392dc-8018-402f-ba82-7db295959a99",
+      "name": "Calcular clave de idempotencia",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        660,
+        -100
+      ],
+      "parameters": {
+        "action": "hash",
+        "type": "SHA256",
+        "value": "={{ $json.semilla_idem }}",
+        "dataPropertyName": "idem_key",
+        "encoding": "hex"
+      }
+    },
+    {
+      "id": "9e8a2474-d274-428d-9bc3-4580c1c1691a",
+      "name": "Buscar solicitud previa",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        880,
+        -100
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "OKxdpMqVAJpTRPYX"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "idem_key",
+              "condition": "eq",
+              "keyValue": "={{ $json.idem_key }}"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "9a7bed05-46bb-49f1-abbe-ab8cd98e760a",
+      "name": "¿Ya se recibió?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1100,
+        -100
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.trace_id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "bb76946a-f06f-4a2f-8735-2da52531454f",
+      "name": "Responder 200 · duplicado",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1320,
+        -260
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ estado: 'duplicado', trace_id: $json.trace_id, estado_actual: $json.estado, mensaje: 'Ya habíamos recibido esta consulta: no se procesa de nuevo.' }) }}",
+        "options": {
+          "responseCode": 200
+        }
+      }
+    },
+    {
+      "id": "a4546301-c214-41df-a824-06d1b0dfb464",
+      "name": "Crear traceId",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nconst d = $('Calcular clave de idempotencia').first().json;\nconst trace_id = 'pf-' + $now.toFormat('yyyyMMdd-HHmmss') + '-' + d.idem_key.slice(0, 6);\nreturn [{ json: { trace_id, idem_key: d.idem_key, session_id: d.email, nombre: d.nombre,\n  asunto: d.asunto, mensaje: d.mensaje, canal: d.canal, modo_prueba: d.modo_prueba } }];\n"
+      }
+    },
+    {
+      "id": "ee8d3d99-2be0-4f7b-9222-8f3f6437055a",
+      "name": "Registrar solicitud (RECIBIDO)",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1540,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "OKxdpMqVAJpTRPYX"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "idem_key": "={{ $('Crear traceId').first().json.idem_key }}",
+            "trace_id": "={{ $('Crear traceId').first().json.trace_id }}",
+            "session_id": "={{ $('Crear traceId').first().json.session_id }}",
+            "nombre": "={{ $('Crear traceId').first().json.nombre }}",
+            "asunto": "={{ $('Crear traceId').first().json.asunto }}",
+            "mensaje": "={{ $('Crear traceId').first().json.mensaje }}",
+            "canal": "={{ $('Crear traceId').first().json.canal }}",
+            "estado": "RECIBIDO",
+            "crm_ok": false,
+            "slack_ok": false,
+            "gmail_ok": false,
+            "intentos": 0,
+            "creado": "={{ $now.toISO() }}",
+            "actualizado": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "idem_key",
+              "displayName": "idem_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "trace_id",
+              "displayName": "trace_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "asunto",
+              "displayName": "asunto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "mensaje",
+              "displayName": "mensaje",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "canal",
+              "displayName": "canal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "crm_ok",
+              "displayName": "crm_ok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "slack_ok",
+              "displayName": "slack_ok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gmail_ok",
+              "displayName": "gmail_ok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intentos",
+              "displayName": "intentos",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "creado",
+              "displayName": "creado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "actualizado",
+              "displayName": "actualizado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "3aacf134-6396-437a-b7b5-2833f164ebd4",
+      "name": "Responder 202 · recibida",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        1760,
+        0
+      ],
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ estado: 'recibido', trace_id: $('Crear traceId').first().json.trace_id, mensaje: 'Recibimos tu consulta. Te respondemos por email.' }) }}",
+        "options": {
+          "responseCode": 202
+        }
+      }
+    },
+    {
+      "id": "a813b1d0-b950-4f4c-8d38-3b4799b8b361",
+      "name": "Procesar en segundo plano (manager)",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.3,
+      "position": [
+        1980,
+        0
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "X30OtaAFmBJRl25P"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "trace_id": "={{ $('Crear traceId').first().json.trace_id }}",
+            "idem_key": "={{ $('Crear traceId').first().json.idem_key }}",
+            "session_id": "={{ $('Crear traceId').first().json.session_id }}",
+            "nombre": "={{ $('Crear traceId').first().json.nombre }}",
+            "asunto": "={{ $('Crear traceId').first().json.asunto }}",
+            "mensaje": "={{ $('Crear traceId').first().json.mensaje }}",
+            "canal": "={{ $('Crear traceId').first().json.canal }}",
+            "modo_prueba": "={{ $('Crear traceId').first().json.modo_prueba }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "trace_id",
+              "displayName": "trace_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "idem_key",
+              "displayName": "idem_key",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "asunto",
+              "displayName": "asunto",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "mensaje",
+              "displayName": "mensaje",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "canal",
+              "displayName": "canal",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "modo_prueba",
+              "displayName": "modo_prueba",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "waitForSubWorkflow": false
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook · Consulta de soporte": {
+      "main": [
+        [
+          {
+            "node": "Normalizar y validar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalizar y validar": {
+      "main": [
+        [
+          {
+            "node": "¿Solicitud válida?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Solicitud válida?": {
+      "main": [
+        [
+          {
+            "node": "Calcular clave de idempotencia",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Responder 400 · rechazada",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calcular clave de idempotencia": {
+      "main": [
+        [
+          {
+            "node": "Buscar solicitud previa",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Buscar solicitud previa": {
+      "main": [
+        [
+          {
+            "node": "¿Ya se recibió?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Ya se recibió?": {
+      "main": [
+        [
+          {
+            "node": "Responder 200 · duplicado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Crear traceId",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crear traceId": {
+      "main": [
+        [
+          {
+            "node": "Registrar solicitud (RECIBIDO)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Registrar solicitud (RECIBIDO)": {
+      "main": [
+        [
+          {
+            "node": "Responder 202 · recibida",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Responder 202 · recibida": {
+      "main": [
+        [
+          {
+            "node": "Procesar en segundo plano (manager)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "errorWorkflow": "NumS0OLXSuGbUnLd"
+  },
+  "tags": [],
+  "active": false,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  },
+  "id": "wqQ541yrfqr5BPdX"
+}

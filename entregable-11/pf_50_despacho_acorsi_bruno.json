@@ -1,0 +1,523 @@
+{
+  "name": "pf_50_despacho_acorsi_bruno",
+  "nodes": [
+    {
+      "id": "0e34455e-cff7-4a54-a44c-cb674fa31756",
+      "name": "Recibe respuesta aprobada",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "inputSource": "workflowInputs",
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "trace_id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "nombre",
+              "type": "string"
+            },
+            {
+              "name": "asunto",
+              "type": "string"
+            },
+            {
+              "name": "respuesta_final",
+              "type": "string"
+            },
+            {
+              "name": "intent",
+              "type": "string"
+            },
+            {
+              "name": "exactitud_factual",
+              "type": "string"
+            },
+            {
+              "name": "decision_humana",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "e2a9d58f-c547-4e32-ba6c-dfd52234a857",
+      "name": "Leer solicitud",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "OKxdpMqVAJpTRPYX"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "trace_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.trace_id }}"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "9359238c-2f46-4c7c-bfd4-5b8240a5aa9f",
+      "name": "Qué falta enviar",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nconst e = $('Recibe respuesta aprobada').first().json;\nconst r = $input.first().json || {};\nreturn [{ json: { ...e, slack_pendiente: r.slack_ok !== true, gmail_pendiente: r.gmail_ok !== true } }];\n"
+      }
+    },
+    {
+      "id": "972a1675-bb5d-46f9-9feb-0bf0cc5dfc88",
+      "name": "¿Falta Slack?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.slack_pendiente }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "8da769e7-7697-48aa-97bf-69d0cc1262a4",
+      "name": "Slack · Aviso a #operaciones",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        880,
+        -100
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "C0C8EN5A0JE"
+        },
+        "text": "={{ '✅ *Consulta respondida* · ' + $json.intent + ' · traceId ' + $json.trace_id + '\\n*Local:* ' + ($json.nombre || 'sin nombre') + ' (' + $json.email + ')' + '\\n*Supervisor:* exactitud ' + $json.exactitud_factual + '/5 · ' + ($json.decision_humana === 'AUTOMATICA' ? 'aprobada automáticamente' : 'decidió una persona') + '\\n*Respuesta (quedó como borrador en Gmail):* ' + $json.respuesta_final }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "webhookId": "5f6bdce2-c28b-4bc7-894c-6f2063fdbba3",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "256Aq6c6oCNCkaIo",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "id": "4ca8282c-de83-4359-899f-b950bb8efb6d",
+      "name": "Marcar slack_ok",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        -100
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "OKxdpMqVAJpTRPYX"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "trace_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Qué falta enviar').first().json.trace_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "slack_ok": true,
+            "actualizado": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "slack_ok",
+              "displayName": "slack_ok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "actualizado",
+              "displayName": "actualizado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "2e4553e5-f1a8-4628-9385-7bc95d46ba5b",
+      "name": "Paso a Gmail",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return [{ json: $('Qué falta enviar').first().json }];"
+      }
+    },
+    {
+      "id": "3d4664fa-7d0e-409d-9879-40a8edbf8019",
+      "name": "¿Falta Gmail?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1540,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.gmail_pendiente }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "7137f7c0-9e03-4b9e-92ab-d6c72ad08fe0",
+      "name": "Gmail · Borrador de respuesta al local",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1760,
+        -100
+      ],
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ 'Re: ' + $json.asunto }}",
+        "message": "={{ 'Hola' + ($json.nombre ? ' ' + $json.nombre : '') + ':\\n\\n' + $json.respuesta_final + '\\n\\nEquipo de soporte de ProTable\\nCódigo de seguimiento: ' + $json.trace_id }}",
+        "options": {
+          "sendTo": "={{ $json.email }}"
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "webhookId": "5dd597ab-7e06-42bb-b0f2-53e2ba7ebaaa",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "PtX0TSgknJ9Mnlga",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "id": "997604b4-453e-439c-9457-4fd95345191e",
+      "name": "Marcar gmail_ok",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1980,
+        -100
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "OKxdpMqVAJpTRPYX"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "trace_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Qué falta enviar').first().json.trace_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "gmail_ok": true,
+            "actualizado": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "gmail_ok",
+              "displayName": "gmail_ok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "actualizado",
+              "displayName": "actualizado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "2cb41da6-62dc-405a-8a41-ce2a9c94e64a",
+      "name": "Salida del despacho",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2200,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nconst f = $('Qué falta enviar').first().json;\nreturn [{ json: { trace_id: f.trace_id,\n  slack: f.slack_pendiente ? 'enviado' : 'omitido: ya enviado',\n  gmail: f.gmail_pendiente ? 'borrador creado' : 'omitido: ya creado' } }];\n"
+      }
+    }
+  ],
+  "connections": {
+    "Recibe respuesta aprobada": {
+      "main": [
+        [
+          {
+            "node": "Leer solicitud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer solicitud": {
+      "main": [
+        [
+          {
+            "node": "Qué falta enviar",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qué falta enviar": {
+      "main": [
+        [
+          {
+            "node": "¿Falta Slack?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Falta Slack?": {
+      "main": [
+        [
+          {
+            "node": "Slack · Aviso a #operaciones",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Paso a Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack · Aviso a #operaciones": {
+      "main": [
+        [
+          {
+            "node": "Marcar slack_ok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar slack_ok": {
+      "main": [
+        [
+          {
+            "node": "Paso a Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Paso a Gmail": {
+      "main": [
+        [
+          {
+            "node": "¿Falta Gmail?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Falta Gmail?": {
+      "main": [
+        [
+          {
+            "node": "Gmail · Borrador de respuesta al local",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Salida del despacho",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail · Borrador de respuesta al local": {
+      "main": [
+        [
+          {
+            "node": "Marcar gmail_ok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar gmail_ok": {
+      "main": [
+        [
+          {
+            "node": "Salida del despacho",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [],
+  "active": false,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  },
+  "id": "bR5IcYQYSxX3Zhgo"
+}

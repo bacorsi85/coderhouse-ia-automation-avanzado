@@ -1,0 +1,140 @@
+{
+  "name": "pf_90_alertas_acorsi_bruno",
+  "nodes": [
+    {
+      "id": "051ae240-cdaa-4cfb-859e-610b687a07d9",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {}
+    },
+    {
+      "id": "280eb3fa-9653-4d5a-a597-8a0910cde09c",
+      "name": "Armar alerta",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "\nconst e = $input.first().json;\nconst ex = e.execution || {};\nconst err = (ex.error || (e.trigger && e.trigger.error) || {});\nconst detalle = String(err.message || err.description || 'sin detalle').slice(0, 300);\nconst flujo = (e.workflow && e.workflow.name) || 'flujo desconocido';\nconst texto = '🚨 *Falla en el sistema de soporte* · ' + flujo +\n  '\\n*Paso que falló:* ' + (ex.lastNodeExecuted || '-') +\n  '\\n*Error:* ' + detalle +\n  '\\n*Ejecución:* ' + (ex.id || '-') + (ex.url ? ' · ' + ex.url : '') +\n  '\\nEl caso no se consolidó ni se respondió al local: revisar y reprocesar.';\nreturn [{ json: { texto, flujo, paso: ex.lastNodeExecuted || '', detalle, execution_id: ex.id || '' } }];\n"
+      }
+    },
+    {
+      "id": "dfc8174c-8ce4-4de4-b23c-019da062332f",
+      "name": "Slack · Alerta al equipo",
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.7,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "C0C8EN5A0JE"
+        },
+        "text": "={{ $json.texto }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "onError": "continueErrorOutput",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "webhookId": "837b8c28-3c72-4748-86be-e5ff2bd1a184",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "256Aq6c6oCNCkaIo",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "id": "977bd0b9-37fb-4f63-a6ac-c708b75feb19",
+      "name": "Gmail · Alerta de respaldo",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        660,
+        120
+      ],
+      "parameters": {
+        "sendTo": "bruno.acorsii@gmail.com",
+        "subject": "=[Soporte ProTable] Falla en {{ $('Armar alerta').first().json.flujo }}",
+        "emailType": "text",
+        "message": "={{ $('Armar alerta').first().json.texto }}\n\n(Slack no respondió: esta alerta sale por email.)",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "webhookId": "11fec9a0-91e8-4a0a-a38d-21db22c9e367",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "PtX0TSgknJ9Mnlga",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Armar alerta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armar alerta": {
+      "main": [
+        [
+          {
+            "node": "Slack · Alerta al equipo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack · Alerta al equipo": {
+      "main": [
+        null,
+        [
+          {
+            "node": "Gmail · Alerta de respaldo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true
+  },
+  "tags": [],
+  "active": false,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  },
+  "id": "NumS0OLXSuGbUnLd"
+}

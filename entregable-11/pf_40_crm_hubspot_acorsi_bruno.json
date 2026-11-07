@@ -1,0 +1,374 @@
+{
+  "name": "pf_40_crm_hubspot_acorsi_bruno",
+  "nodes": [
+    {
+      "id": "acfedf4e-edff-4247-9aeb-b65ce3799600",
+      "name": "Recibe caso aprobado",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "inputSource": "workflowInputs",
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "trace_id",
+              "type": "string"
+            },
+            {
+              "name": "email",
+              "type": "string"
+            },
+            {
+              "name": "nombre",
+              "type": "string"
+            },
+            {
+              "name": "intent",
+              "type": "string"
+            },
+            {
+              "name": "respuesta_final",
+              "type": "string"
+            },
+            {
+              "name": "estado_veredicto",
+              "type": "string"
+            },
+            {
+              "name": "exactitud_factual",
+              "type": "string"
+            },
+            {
+              "name": "decision_humana",
+              "type": "string"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "fcb509fe-bf65-4dcc-b736-b6489fc7ac33",
+      "name": "Leer solicitud",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "OKxdpMqVAJpTRPYX"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "trace_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.trace_id }}"
+            }
+          ]
+        },
+        "limit": 1
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "337be6c9-c79f-4d9e-82bb-08b5612a3753",
+      "name": "¿Ya está en el CRM?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 1
+          },
+          "conditions": [
+            {
+              "id": "c1",
+              "leftValue": "={{ $json.crm_ok }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      }
+    },
+    {
+      "id": "7cf47126-a7ef-4fc9-8d9f-d7b4336c3d91",
+      "name": "Salida: ya registrado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        660,
+        -160
+      ],
+      "parameters": {
+        "jsCode": "return [{ json: { crm: 'omitido: ya registrado', trace_id: $('Recibe caso aprobado').first().json.trace_id } }];"
+      }
+    },
+    {
+      "id": "368a0a3f-bdd8-46be-9f76-bbd1366d6490",
+      "name": "HubSpot · Crear o actualizar contacto",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        80
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "email": "={{ $('Recibe caso aprobado').first().json.email }}",
+        "additionalFields": {
+          "firstName": "={{ $('Recibe caso aprobado').first().json.nombre || '' }}"
+        },
+        "options": {}
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "hubspotOAuth2Api": {
+          "id": "QTJTFIh77ht4LWic",
+          "name": "HubSpot account"
+        }
+      }
+    },
+    {
+      "id": "6d51f81a-1154-451f-b63a-3324a6ba7b77",
+      "name": "HubSpot · Registrar caso (tarea completada)",
+      "type": "n8n-nodes-base.hubspot",
+      "typeVersion": 2.2,
+      "position": [
+        880,
+        80
+      ],
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "engagement",
+        "operation": "create",
+        "type": "task",
+        "metadata": {
+          "subject": "={{ 'Soporte IA · ' + $('Recibe caso aprobado').first().json.intent + ' · ' + $('Recibe caso aprobado').first().json.trace_id }}",
+          "body": "={{ 'Respuesta aprobada por el supervisor (exactitud ' + $('Recibe caso aprobado').first().json.exactitud_factual + '/5, ' + $('Recibe caso aprobado').first().json.decision_humana + '):\\n' + $('Recibe caso aprobado').first().json.respuesta_final }}",
+          "status": "COMPLETED",
+          "forObjectType": "CONTACT"
+        },
+        "dueDate": "={{ $now.toISO() }}",
+        "additionalFields": {
+          "associations": {
+            "contactIds": "={{ $json.vid ?? $json.id }}"
+          }
+        }
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "credentials": {
+        "hubspotOAuth2Api": {
+          "id": "QTJTFIh77ht4LWic",
+          "name": "HubSpot account"
+        }
+      }
+    },
+    {
+      "id": "bc87ed38-3e3d-4ec6-a677-a1eb888492a9",
+      "name": "Marcar crm_ok",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1100,
+        80
+      ],
+      "parameters": {
+        "resource": "row",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "OKxdpMqVAJpTRPYX"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "trace_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Recibe caso aprobado').first().json.trace_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "crm_ok": true,
+            "intencion": "={{ $('Recibe caso aprobado').first().json.intent }}",
+            "actualizado": "={{ $now.toISO() }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "crm_ok",
+              "displayName": "crm_ok",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "intencion",
+              "displayName": "intencion",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "actualizado",
+              "displayName": "actualizado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 2000,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "6f2e51e8-be90-4aa3-bb43-757699eda659",
+      "name": "Salida: registrado",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1320,
+        80
+      ],
+      "parameters": {
+        "jsCode": "return [{ json: { crm: 'registrado', trace_id: $('Recibe caso aprobado').first().json.trace_id, contact_id: String($('HubSpot · Crear o actualizar contacto').first().json.vid ?? $('HubSpot · Crear o actualizar contacto').first().json.id ?? '') } }];"
+      }
+    }
+  ],
+  "connections": {
+    "Recibe caso aprobado": {
+      "main": [
+        [
+          {
+            "node": "Leer solicitud",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer solicitud": {
+      "main": [
+        [
+          {
+            "node": "¿Ya está en el CRM?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Ya está en el CRM?": {
+      "main": [
+        [
+          {
+            "node": "Salida: ya registrado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HubSpot · Crear o actualizar contacto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HubSpot · Crear o actualizar contacto": {
+      "main": [
+        [
+          {
+            "node": "HubSpot · Registrar caso (tarea completada)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HubSpot · Registrar caso (tarea completada)": {
+      "main": [
+        [
+          {
+            "node": "Marcar crm_ok",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marcar crm_ok": {
+      "main": [
+        [
+          {
+            "node": "Salida: registrado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "tags": [],
+  "active": false,
+  "meta": {
+    "aiBuilderAssisted": true,
+    "builderVariant": "mcp"
+  },
+  "id": "gZvPa1N4xt0mUMhM"
+}
